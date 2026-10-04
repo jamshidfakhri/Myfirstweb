@@ -1,13 +1,16 @@
 import os
+import html as html_module
 import sqlite3
 import urllib.request
 import urllib.parse
-from flask import Flask, request, redirect, jsonify
+from flask import Flask, request, redirect, jsonify, session
 
 app = Flask(__name__)
+app.secret_key = os.environ.get("SECRET_KEY", "change-this-secret-key-12345")
 
 BOT_TOKEN = os.environ.get("BOT_TOKEN", "")
 ADMIN_ID = os.environ.get("ADMIN_ID", "")
+ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "admin123")
 
 DB_NAME = "site_data.db"
 
@@ -19,6 +22,15 @@ def init_db():
     cursor.execute("SELECT count FROM counter WHERE id = 1")
     if cursor.fetchone() is None:
         cursor.execute("INSERT INTO counter (id, count) VALUES (1, 0)")
+
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS posts (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            title TEXT NOT NULL,
+            content TEXT NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
     conn.commit()
     conn.close()
 
@@ -41,6 +53,55 @@ def get_visit_count():
     result = cursor.fetchone()
     conn.close()
     return result[0] if result else 0
+
+
+# ---------------- پست‌ها ----------------
+def get_all_posts():
+    conn = sqlite3.connect(DB_NAME)
+    cursor = conn.cursor()
+    cursor.execute("SELECT id, title, content, created_at FROM posts ORDER BY id DESC")
+    rows = cursor.fetchall()
+    conn.close()
+    return [{"id": r[0], "title": r[1], "content": r[2], "created_at": r[3]} for r in rows]
+
+
+def get_post(post_id):
+    conn = sqlite3.connect(DB_NAME)
+    cursor = conn.cursor()
+    cursor.execute("SELECT id, title, content, created_at FROM posts WHERE id = ?", (post_id,))
+    row = cursor.fetchone()
+    conn.close()
+    if row:
+        return {"id": row[0], "title": row[1], "content": row[2], "created_at": row[3]}
+    return None
+
+
+def create_post(title, content):
+    conn = sqlite3.connect(DB_NAME)
+    cursor = conn.cursor()
+    cursor.execute("INSERT INTO posts (title, content) VALUES (?, ?)", (title, content))
+    conn.commit()
+    conn.close()
+
+
+def update_post(post_id, title, content):
+    conn = sqlite3.connect(DB_NAME)
+    cursor = conn.cursor()
+    cursor.execute("UPDATE posts SET title = ?, content = ? WHERE id = ?", (title, content, post_id))
+    conn.commit()
+    conn.close()
+
+
+def delete_post(post_id):
+    conn = sqlite3.connect(DB_NAME)
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM posts WHERE id = ?", (post_id,))
+    conn.commit()
+    conn.close()
+
+
+def is_admin_logged_in():
+    return session.get("admin_logged_in", False)
 
 
 def send_to_telegram(name, email, message):
@@ -205,12 +266,7 @@ CSS = """
         text-align: center;
         flex: 1;
     }
-    .header-right {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        flex-shrink: 0;
-    }
+    .header-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
     .ping-box {
         background: rgba(118, 75, 162, 0.1);
         padding: 6px 12px;
@@ -316,6 +372,17 @@ CSS = """
         border: none;
         cursor: pointer;
         font-family: Tahoma, sans-serif;
+        margin: 5px;
+    }
+    .btn-small {
+        padding: 8px 18px;
+        font-size: 14px;
+    }
+    .btn-danger {
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    }
+    .btn-secondary {
+        background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
     }
     form { display: flex; flex-direction: column; gap: 15px; text-align: right; }
     label { font-size: 16px; color: var(--text-secondary); margin-bottom: 5px; display: block; }
@@ -330,7 +397,7 @@ CSS = """
         background: var(--card-bg);
         color: var(--text-color);
     }
-    textarea { resize: vertical; min-height: 120px; }
+    textarea { resize: vertical; min-height: 200px; line-height: 1.8; }
     .stats {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -353,7 +420,7 @@ CSS = """
 </style>
 """
 
-EXTRA_CSS_PORTFOLIO = """
+PORTFOLIO_CSS = """
 <style>
     .projects-grid {
         display: grid;
@@ -383,6 +450,111 @@ EXTRA_CSS_PORTFOLIO = """
 </style>
 """
 
+BLOG_CSS = """
+<style>
+    .posts-list {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        margin-top: 30px;
+    }
+    .post-card {
+        background: var(--card-bg);
+        padding: 25px 30px;
+        border-radius: 15px;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+        text-decoration: none;
+        color: var(--text-color);
+        display: block;
+        text-align: right;
+        animation: fadeInUp 0.6s ease backwards;
+        transition: transform 0.3s;
+    }
+    .post-card:hover { transform: translateX(-5px); }
+    .post-card h2 {
+        color: var(--heading-color);
+        font-size: 22px;
+        margin-bottom: 10px;
+    }
+    .post-card .post-date {
+        font-size: 13px;
+        color: #999;
+        margin-bottom: 10px;
+    }
+    .post-card .post-preview {
+        font-size: 15px;
+        line-height: 1.8;
+        color: var(--text-secondary);
+    }
+    .post-full {
+        background: var(--card-bg);
+        padding: 40px;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        text-align: right;
+        animation: fadeInUp 0.8s ease;
+    }
+    .post-full h1 {
+        color: var(--heading-color);
+        font-size: 32px;
+        margin-bottom: 15px;
+        text-align: right;
+    }
+    .post-full .post-date {
+        font-size: 14px;
+        color: #999;
+        margin-bottom: 30px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    }
+    .post-full .post-body {
+        font-size: 17px;
+        line-height: 2;
+        color: var(--text-color);
+        white-space: pre-wrap;
+        word-wrap: break-word;
+    }
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+    }
+    .empty-state .emoji { font-size: 80px; }
+    .empty-state p { font-size: 16px; color: var(--text-secondary); }
+    .admin-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 20px;
+        justify-content: flex-start;
+        flex-wrap: wrap;
+    }
+    .admin-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+    .admin-header h1 { margin: 0; }
+    .success-msg {
+        background: #d4edda;
+        color: #155724;
+        padding: 15px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+    .error-msg {
+        background: #f8d7da;
+        color: #721c24;
+        padding: 15px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+</style>
+"""
+
 
 JS_SCRIPT = """
 <script>
@@ -390,12 +562,10 @@ JS_SCRIPT = """
         var savedTheme = localStorage.getItem('theme') || 'white';
         document.documentElement.setAttribute('data-theme', savedTheme);
     })();
-
     function toggleThemePanel() {
         var panel = document.getElementById('themePanel');
         if (panel) panel.classList.toggle('open');
     }
-
     function setTheme(name) {
         document.documentElement.setAttribute('data-theme', name);
         localStorage.setItem('theme', name);
@@ -411,14 +581,12 @@ JS_SCRIPT = """
             if (panel) panel.classList.remove('open');
         }, 300);
     }
-
     function toggleMenu() {
         var menu = document.getElementById('dropdownMenu');
         var btn = document.getElementById('menuBtn');
         if (menu) menu.classList.toggle('open');
         if (btn) btn.classList.toggle('active');
     }
-
     window.addEventListener('click', function(e) {
         var menu = document.getElementById('dropdownMenu');
         var menuBtn = document.getElementById('menuBtn');
@@ -432,7 +600,6 @@ JS_SCRIPT = """
             themePanel.classList.remove('open');
         }
     });
-
     function measurePing() {
         var start = performance.now();
         fetch('/ping?t=' + Date.now(), {cache: 'no-store'})
@@ -453,7 +620,6 @@ JS_SCRIPT = """
                 if (el) el.textContent = '-- ms';
             });
     }
-
     window.addEventListener('DOMContentLoaded', function() {
         var savedTheme = localStorage.getItem('theme') || 'white';
         var options = document.querySelectorAll('.color-option');
@@ -478,121 +644,4 @@ HEADER_HTML = """
                 <span></span>
                 <span></span>
             </button>
-            <div class="dropdown-menu" id="dropdownMenu">
-                <a href="/">خانه</a>
-                <a href="/about">درباره من</a>
-                <a href="/portfolio">نمونه‌کارها</a>
-                <a href="/contact">تماس با من</a>
-                <a href="/chat">چت با من</a>
-            </div>
-        </div>
-        <div class="greeting">سلام خوش اومدی</div>
-        <div class="header-right">
-            <div class="ping-box">
-                <span class="ping-dot" id="pingDot"></span>
-                <span id="pingValue">-- ms</span>
-            </div>
-            <div class="theme-wrapper">
-                <button class="theme-btn" id="themeBtn" onclick="toggleThemePanel()" title="تغییر تم">🎨</button>
-                <div class="theme-panel" id="themePanel">
-                    <p>انتخاب تم</p>
-                    <div class="color-options">
-                        <div class="color-option" data-theme="white" onclick="setTheme('white')" style="background: #ffffff; border: 2px solid #ddd;" title="سفید"></div>
-                        <div class="color-option" data-theme="black" onclick="setTheme('black')" style="background: #1a1a1a;" title="مشکی"></div>
-                        <div class="color-option" data-theme="yellow" onclick="setTheme('yellow')" style="background: #f9d423;" title="زرد"></div>
-                        <div class="color-option" data-theme="cream" onclick="setTheme('cream')" style="background: #e8d5b7;" title="کرم"></div>
-                        <div class="color-option" data-theme="purple" onclick="setTheme('purple')" style="background: #7c3aed;" title="بنفش"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</header>
-
-<a href="/contact" class="contact-float" title="ارتباط با من">💬</a>
-"""
-
-
-def page_template(title, body_content, extra_head=""):
-    count = get_visit_count()
-    footer = ""
-    html = "<!DOCTYPE html>\n"
-    html += '<html lang="fa" dir="rtl">\n'
-    html += "<head>\n"
-    html += '<meta charset="UTF-8">\n'
-    html += '<meta name="viewport" content="width=device-width, initial-scale=1.0">\n'
-    html += "<title>" + title + "</title>\n"
-    html += CSS
-    html += extra_head
-    html += JS_SCRIPT
-    html += "</head>\n"
-    html += "<body>\n"
-    html += HEADER_HTML
-    html += body_content
-    html += footer
-    html += "\n</body>\n</html>"
-    return html
-
-
-@app.route("/ping")
-def ping():
-    return jsonify({"ok": True})
-
-
-@app.route("/")
-def home():
-    count = increment_visit()
-    body = '<div class="container"><div class="card"><div class="emoji">👋</div><h1>سلام! خوش اومدی</h1><p>این اولین وب‌سایت منه که با پایتون و Flask ساختم.</p><a href="/portfolio" class="btn">نمونه‌کارهام رو ببین</a></div><div class="stats"><div class="stat-card"><div class="stat-number">' + str(count) + '</div><div class="stat-label">بازدید کل</div></div><div class="stat-card"><div class="stat-number">4</div><div class="stat-label">صفحه سایت</div></div><div class="stat-card"><div class="stat-number">24/7</div><div class="stat-label">آنلاین</div></div></div></div>'
-    return page_template("سایت من", body)
-
-
-@app.route("/about")
-def about():
-    body = '<div class="container"><div class="card"><div class="emoji">🚀</div><h1>درباره من</h1><p>من دارم پایتون یاد می‌گیرم و این اولین وب‌سایتمه.</p><a href="/" class="btn">برگرد به خانه</a></div></div>'
-    return page_template("درباره من", body)
-
-
-@app.route("/portfolio")
-def portfolio():
-    projects = [
-        {"emoji": "🤖", "title": "ربات تلگرام", "desc": "یه ربات که با پایتون ساختم.", "tech": "Python - pyTelegramBotAPI", "link": "#"},
-        {"emoji": "🌐", "title": "وب‌سایت شخصی", "desc": "همین سایتی که داری می‌بینی.", "tech": "Python - Flask", "link": "/"},
-        {"emoji": "🎨", "title": "پنج تم رنگی", "desc": "پنج تا تم برای سایت.", "tech": "JavaScript - CSS", "link": "/"},
-        {"emoji": "📩", "title": "فرم تماس", "desc": "پیام‌ها مستقیم به ربات می‌رسه.", "tech": "Flask - Telegram API", "link": "/contact"},
-    ]
-    cards = ""
-    for i, p in enumerate(projects):
-        cards += '<a href="' + p["link"] + '" class="project-card" style="animation-delay: ' + str(i * 0.15) + 's;"><div class="project-emoji">' + p["emoji"] + '</div><h2>' + p["title"] + '</h2><p>' + p["desc"] + '</p><div class="project-tech">' + p["tech"] + '</div></a>'
-    body = '<div class="container"><h1 style="text-align:center; color: var(--heading-color); margin-bottom: 10px;">نمونه‌کارهای من</h1><div class="projects-grid">' + cards + '</div></div>'
-    return page_template("نمونه‌کارها", body, EXTRA_CSS_PORTFOLIO)
-
-
-@app.route("/contact")
-def contact():
-    body = '<div class="container"><div class="card"><div class="emoji">💌</div><h1>تماس با من</h1><p>هر پیامی داری، اینجا بنویس.</p><form method="POST" action="/contact"><div><label>اسمت:</label><input type="text" name="name" required></div><div><label>ایمیلت:</label><input type="email" name="email" required></div><div><label>پیامت:</label><textarea name="message" required></textarea></div><button type="submit" class="btn">ارسال پیام</button></form></div></div>'
-    return page_template("تماس با من", body)
-
-
-@app.route("/contact", methods=["POST"])
-def contact_post():
-    name = request.form.get("name", "").strip()
-    email = request.form.get("email", "").strip()
-    message = request.form.get("message", "").strip()
-    if not name or not email or not message:
-        return redirect("/contact")
-    send_to_telegram(name, email, message)
-    body = '<div class="container"><div class="card"><div class="emoji">✅</div><h1>پیامت ارسال شد!</h1><p>ممنون ' + name + ' جان.</p><a href="/" class="btn">برگرد به خانه</a></div></div>'
-    return page_template("ارسال شد", body)
-
-
-@app.route("/chat")
-def chat():
-    body = '<div class="container"><div class="card"><div class="emoji">💬</div><h1>چت با من</h1><p>این بخش فعلاً در دست ساخته. از فرم تماس استفاده کن.</p><a href="/contact" class="btn">برو به فرم تماس</a></div></div>'
-    return page_template("چت", body)
-
-
-init_db()
-
-if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 8080))
-    app.run(host="0.0.0.0", port=port)
+          
