@@ -345,7 +345,6 @@ CSS = """
     }
     .stat-number { font-size: 36px; font-weight: bold; color: var(--heading-color); margin-bottom: 10px; }
     .stat-label { font-size: 15px; color: var(--text-secondary); }
-    footer { text-align: center; padding: 30px; color: #fff; margin-top: 40px; font-size: 15px; }
     @media (max-width: 600px) {
         .greeting { font-size: 14px; }
         .ping-box { font-size: 11px; padding: 4px 8px; }
@@ -516,7 +515,7 @@ HEADER_HTML = """
 
 def page_template(title, body_content, extra_head=""):
     count = get_visit_count()
-    footer = "<footer>ساخته‌شده با ❤️ و پایتون | 👀 بازدید: " + str(count) + "</footer>"
+    footer = ""
     html = "<!DOCTYPE html>\n"
     html += '<html lang="fa" dir="rtl">\n'
     html += "<head>\n"
