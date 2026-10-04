@@ -22,15 +22,7 @@ def init_db():
     cursor.execute("SELECT count FROM counter WHERE id = 1")
     if cursor.fetchone() is None:
         cursor.execute("INSERT INTO counter (id, count) VALUES (1, 0)")
-
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS posts (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            title TEXT NOT NULL,
-            content TEXT NOT NULL,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )
-    """)
+    cursor.execute("CREATE TABLE IF NOT EXISTS posts (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT NOT NULL, content TEXT NOT NULL, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)")
     conn.commit()
     conn.close()
 
@@ -55,7 +47,6 @@ def get_visit_count():
     return result[0] if result else 0
 
 
-# ---------------- پست‌ها ----------------
 def get_all_posts():
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
@@ -118,7 +109,7 @@ def send_to_telegram(name, email, message):
         return False
 
 
-CSS = """
+CSS = '''
 <style>
     :root, [data-theme="white"] {
         --bg-gradient: linear-gradient(-45deg, #667eea, #764ba2, #f093fb, #4facfe);
@@ -166,420 +157,105 @@ CSS = """
         --accent: #7c3aed;
     }
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    @keyframes gradientShift {
-        0% { background-position: 0% 50%; }
-        50% { background-position: 100% 50%; }
-        100% { background-position: 0% 50%; }
-    }
-    @keyframes fadeInUp {
-        from { opacity: 0; transform: translateY(30px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes float {
-        0%, 100% { transform: translateY(0); }
-        50% { transform: translateY(-15px); }
-    }
-    @keyframes pulse {
-        0%, 100% { box-shadow: 0 0 0 0 rgba(118, 75, 162, 0.7); }
-        50% { box-shadow: 0 0 0 15px rgba(118, 75, 162, 0); }
-    }
-    @keyframes slideDown {
-        from { opacity: 0; transform: translateY(-10px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes pingPulse {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0.5; }
-    }
-    body {
-        font-family: Tahoma, sans-serif;
-        background: var(--bg-gradient);
-        background-size: 400% 400%;
-        animation: gradientShift 15s ease infinite;
-        min-height: 100vh;
-        color: var(--text-color);
-    }
-    header {
-        background: var(--header-bg);
-        padding: 15px 20px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        position: sticky;
-        top: 0;
-        z-index: 100;
-    }
-    .header-inner {
-        max-width: 900px;
-        margin: 0 auto;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 10px;
-    }
+    @keyframes gradientShift { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+    @keyframes pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(118, 75, 162, 0.7); } 50% { box-shadow: 0 0 0 15px rgba(118, 75, 162, 0); } }
+    @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes pingPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+    body { font-family: Tahoma, sans-serif; background: var(--bg-gradient); background-size: 400% 400%; animation: gradientShift 15s ease infinite; min-height: 100vh; color: var(--text-color); }
+    header { background: var(--header-bg); padding: 15px 20px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); position: sticky; top: 0; z-index: 100; }
+    .header-inner { max-width: 900px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
     .menu-wrapper { position: relative; flex-shrink: 0; }
-    .menu-btn {
-        background: transparent;
-        border: none;
-        cursor: pointer;
-        padding: 8px;
-        display: flex;
-        flex-direction: column;
-        gap: 5px;
-        border-radius: 8px;
-    }
-    .menu-btn span {
-        display: block;
-        width: 26px;
-        height: 3px;
-        background: var(--heading-color);
-        border-radius: 3px;
-        transition: transform 0.3s, opacity 0.3s;
-    }
+    .menu-btn { background: transparent; border: none; cursor: pointer; padding: 8px; display: flex; flex-direction: column; gap: 5px; border-radius: 8px; }
+    .menu-btn span { display: block; width: 26px; height: 3px; background: var(--heading-color); border-radius: 3px; transition: transform 0.3s, opacity 0.3s; }
     .menu-btn.active span:nth-child(1) { transform: translateY(8px) rotate(45deg); }
     .menu-btn.active span:nth-child(2) { opacity: 0; }
     .menu-btn.active span:nth-child(3) { transform: translateY(-8px) rotate(-45deg); }
-    .dropdown-menu {
-        position: absolute;
-        top: 50px;
-        right: 0;
-        background: var(--card-bg);
-        border-radius: 12px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-        padding: 10px;
-        min-width: 180px;
-        display: none;
-        z-index: 200;
-    }
+    .dropdown-menu { position: absolute; top: 50px; right: 0; background: var(--card-bg); border-radius: 12px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2); padding: 10px; min-width: 180px; display: none; z-index: 200; }
     .dropdown-menu.open { display: block; animation: slideDown 0.3s ease; }
-    .dropdown-menu a {
-        display: block;
-        padding: 12px 16px;
-        color: var(--text-color);
-        text-decoration: none;
-        border-radius: 8px;
-        font-size: 15px;
-    }
+    .dropdown-menu a { display: block; padding: 12px 16px; color: var(--text-color); text-decoration: none; border-radius: 8px; font-size: 15px; }
     .dropdown-menu a:hover { background: var(--accent); color: #fff; }
-    .greeting {
-        font-size: 17px;
-        font-weight: bold;
-        color: var(--heading-color);
-        text-align: center;
-        flex: 1;
-    }
+    .greeting { font-size: 17px; font-weight: bold; color: var(--heading-color); text-align: center; flex: 1; }
     .header-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
-    .ping-box {
-        background: rgba(118, 75, 162, 0.1);
-        padding: 6px 12px;
-        border-radius: 20px;
-        font-size: 13px;
-        color: var(--heading-color);
-        font-weight: bold;
-        display: flex;
-        align-items: center;
-        gap: 6px;
-    }
-    .ping-dot {
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
-        background: #22c55e;
-        animation: pingPulse 2s infinite;
-    }
+    .ping-box { background: rgba(118, 75, 162, 0.1); padding: 6px 12px; border-radius: 20px; font-size: 13px; color: var(--heading-color); font-weight: bold; display: flex; align-items: center; gap: 6px; }
+    .ping-dot { width: 8px; height: 8px; border-radius: 50%; background: #22c55e; animation: pingPulse 2s infinite; }
     .theme-wrapper { position: relative; }
-    .theme-btn {
-        background: transparent;
-        border: 2px solid var(--heading-color);
-        color: var(--heading-color);
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        cursor: pointer;
-        font-size: 18px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-    .theme-panel {
-        position: absolute;
-        top: 50px;
-        left: 0;
-        background: var(--card-bg);
-        border-radius: 12px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-        padding: 15px;
-        display: none;
-        z-index: 200;
-    }
+    .theme-btn { background: transparent; border: 2px solid var(--heading-color); color: var(--heading-color); width: 40px; height: 40px; border-radius: 50%; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; }
+    .theme-panel { position: absolute; top: 50px; left: 0; background: var(--card-bg); border-radius: 12px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2); padding: 15px; display: none; z-index: 200; }
     .theme-panel.open { display: block; animation: slideDown 0.3s ease; }
-    .theme-panel p {
-        font-size: 13px;
-        color: var(--text-secondary);
-        margin-bottom: 10px;
-        text-align: center;
-    }
+    .theme-panel p { font-size: 13px; color: var(--text-secondary); margin-bottom: 10px; text-align: center; }
     .color-options { display: flex; gap: 10px; }
-    .color-option {
-        width: 32px;
-        height: 32px;
-        border-radius: 50%;
-        border: 3px solid transparent;
-        cursor: pointer;
-    }
+    .color-option { width: 32px; height: 32px; border-radius: 50%; border: 3px solid transparent; cursor: pointer; }
     .color-option.active { border-color: var(--heading-color); }
-    .contact-float {
-        position: fixed;
-        bottom: 25px;
-        left: 25px;
-        width: 60px;
-        height: 60px;
-        border-radius: 50%;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: #fff;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 26px;
-        text-decoration: none;
-        box-shadow: 0 6px 20px rgba(118, 75, 162, 0.5);
-        z-index: 90;
-        animation: pulse 2s infinite;
-    }
+    .contact-float { position: fixed; bottom: 25px; left: 25px; width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 26px; text-decoration: none; box-shadow: 0 6px 20px rgba(118, 75, 162, 0.5); z-index: 90; animation: pulse 2s infinite; }
     .container { max-width: 900px; margin: 40px auto; padding: 0 20px; }
-    .card {
-        background: var(--card-bg);
-        padding: 50px 40px;
-        border-radius: 20px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-        text-align: center;
-        animation: fadeInUp 0.8s ease;
-    }
-    .emoji {
-        font-size: 70px;
-        display: inline-block;
-        animation: float 3s ease-in-out infinite;
-        margin-bottom: 20px;
-    }
+    .card { background: var(--card-bg); padding: 50px 40px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2); text-align: center; animation: fadeInUp 0.8s ease; }
+    .emoji { font-size: 70px; display: inline-block; animation: float 3s ease-in-out infinite; margin-bottom: 20px; }
     h1 { color: var(--heading-color); font-size: 34px; margin-bottom: 20px; }
     p { font-size: 18px; line-height: 1.8; color: var(--text-secondary); margin-bottom: 30px; }
-    .btn {
-        display: inline-block;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: #fff;
-        padding: 16px 35px;
-        border-radius: 30px;
-        text-decoration: none;
-        font-size: 16px;
-        border: none;
-        cursor: pointer;
-        font-family: Tahoma, sans-serif;
-        margin: 5px;
-    }
-    .btn-small {
-        padding: 8px 18px;
-        font-size: 14px;
-    }
-    .btn-danger {
-        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-    }
-    .btn-secondary {
-        background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
-    }
+    .btn { display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff; padding: 16px 35px; border-radius: 30px; text-decoration: none; font-size: 16px; border: none; cursor: pointer; font-family: Tahoma, sans-serif; margin: 5px; }
+    .btn-small { padding: 8px 18px; font-size: 14px; }
+    .btn-danger { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); }
+    .btn-secondary { background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%); }
     form { display: flex; flex-direction: column; gap: 15px; text-align: right; }
     label { font-size: 16px; color: var(--text-secondary); margin-bottom: 5px; display: block; }
-    input, textarea {
-        width: 100%;
-        padding: 14px 18px;
-        border: 2px solid #e0e0e0;
-        border-radius: 10px;
-        font-size: 16px;
-        font-family: Tahoma, sans-serif;
-        outline: none;
-        background: var(--card-bg);
-        color: var(--text-color);
-    }
+    input, textarea { width: 100%; padding: 14px 18px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 16px; font-family: Tahoma, sans-serif; outline: none; background: var(--card-bg); color: var(--text-color); }
     textarea { resize: vertical; min-height: 200px; line-height: 1.8; }
-    .stats {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 20px;
-        margin-top: 30px;
-    }
-    .stat-card {
-        background: var(--card-bg);
-        padding: 25px;
-        border-radius: 15px;
-        text-align: center;
-    }
+    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-top: 30px; }
+    .stat-card { background: var(--card-bg); padding: 25px; border-radius: 15px; text-align: center; }
     .stat-number { font-size: 36px; font-weight: bold; color: var(--heading-color); margin-bottom: 10px; }
     .stat-label { font-size: 15px; color: var(--text-secondary); }
-    @media (max-width: 600px) {
-        .greeting { font-size: 14px; }
-        .ping-box { font-size: 11px; padding: 4px 8px; }
-        .menu-btn span { width: 22px; }
-    }
+    @media (max-width: 600px) { .greeting { font-size: 14px; } .ping-box { font-size: 11px; padding: 4px 8px; } .menu-btn span { width: 22px; } }
 </style>
-"""
+'''
 
-PORTFOLIO_CSS = """
+PORTFOLIO_CSS = '''
 <style>
-    .projects-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        gap: 20px;
-        margin-top: 30px;
-    }
-    .project-card {
-        background: var(--card-bg);
-        padding: 30px 25px;
-        border-radius: 20px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-        text-decoration: none;
-        color: var(--text-color);
-        display: block;
-        animation: fadeInUp 0.8s ease backwards;
-    }
+    .projects-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-top: 30px; }
+    .project-card { background: var(--card-bg); padding: 30px 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15); text-decoration: none; color: var(--text-color); display: block; animation: fadeInUp 0.8s ease backwards; }
     .project-emoji { font-size: 55px; margin-bottom: 15px; display: inline-block; }
     .project-card h2 { color: var(--heading-color); font-size: 22px; margin-bottom: 15px; }
     .project-card p { font-size: 15px; line-height: 1.8; margin-bottom: 15px; }
-    .project-tech {
-        font-size: 13px;
-        color: #999;
-        padding-top: 15px;
-        border-top: 1px solid rgba(0, 0, 0, 0.1);
-    }
+    .project-tech { font-size: 13px; color: #999; padding-top: 15px; border-top: 1px solid rgba(0, 0, 0, 0.1); }
 </style>
-"""
+'''
 
-BLOG_CSS = """
+BLOG_CSS = '''
 <style>
-    .posts-list {
-        display: flex;
-        flex-direction: column;
-        gap: 15px;
-        margin-top: 30px;
-    }
-    .post-card {
-        background: var(--card-bg);
-        padding: 25px 30px;
-        border-radius: 15px;
-        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
-        text-decoration: none;
-        color: var(--text-color);
-        display: block;
-        text-align: right;
-        animation: fadeInUp 0.6s ease backwards;
-        transition: transform 0.3s;
-    }
-    .post-card:hover { transform: translateX(-5px); }
-    .post-card h2 {
-        color: var(--heading-color);
-        font-size: 22px;
-        margin-bottom: 10px;
-    }
-    .post-card .post-date {
-        font-size: 13px;
-        color: #999;
-        margin-bottom: 10px;
-    }
-    .post-card .post-preview {
-        font-size: 15px;
-        line-height: 1.8;
-        color: var(--text-secondary);
-    }
-    .post-full {
-        background: var(--card-bg);
-        padding: 40px;
-        border-radius: 20px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-        text-align: right;
-        animation: fadeInUp 0.8s ease;
-    }
-    .post-full h1 {
-        color: var(--heading-color);
-        font-size: 32px;
-        margin-bottom: 15px;
-        text-align: right;
-    }
-    .post-full .post-date {
-        font-size: 14px;
-        color: #999;
-        margin-bottom: 30px;
-        padding-bottom: 20px;
-        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-    }
-    .post-full .post-body {
-        font-size: 17px;
-        line-height: 2;
-        color: var(--text-color);
-        white-space: pre-wrap;
-        word-wrap: break-word;
-    }
-    .empty-state {
-        text-align: center;
-        padding: 60px 20px;
-    }
+    .posts-list { display: flex; flex-direction: column; gap: 15px; margin-top: 30px; }
+    .post-card { background: var(--card-bg); padding: 25px 30px; border-radius: 15px; box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12); text-decoration: none; color: var(--text-color); display: block; text-align: right; animation: fadeInUp 0.6s ease backwards; }
+    .post-card h2 { color: var(--heading-color); font-size: 22px; margin-bottom: 10px; }
+    .post-card .post-date { font-size: 13px; color: #999; margin-bottom: 10px; }
+    .post-card .post-preview { font-size: 15px; line-height: 1.8; color: var(--text-secondary); }
+    .post-full { background: var(--card-bg); padding: 40px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15); text-align: right; animation: fadeInUp 0.8s ease; }
+    .post-full h1 { color: var(--heading-color); font-size: 32px; margin-bottom: 15px; text-align: right; }
+    .post-full .post-date { font-size: 14px; color: #999; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid rgba(0, 0, 0, 0.1); }
+    .post-full .post-body { font-size: 17px; line-height: 2; color: var(--text-color); white-space: pre-wrap; word-wrap: break-word; }
+    .empty-state { text-align: center; padding: 60px 20px; }
     .empty-state .emoji { font-size: 80px; }
     .empty-state p { font-size: 16px; color: var(--text-secondary); }
-    .admin-actions {
-        display: flex;
-        gap: 10px;
-        margin-top: 20px;
-        justify-content: flex-start;
-        flex-wrap: wrap;
-    }
-    .admin-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 20px;
-        flex-wrap: wrap;
-        gap: 10px;
-    }
+    .admin-actions { display: flex; gap: 10px; margin-top: 20px; justify-content: flex-start; flex-wrap: wrap; }
+    .admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
     .admin-header h1 { margin: 0; }
-    .success-msg {
-        background: #d4edda;
-        color: #155724;
-        padding: 15px;
-        border-radius: 10px;
-        margin-bottom: 20px;
-        text-align: center;
-    }
-    .error-msg {
-        background: #f8d7da;
-        color: #721c24;
-        padding: 15px;
-        border-radius: 10px;
-        margin-bottom: 20px;
-        text-align: center;
-    }
+    .success-msg { background: #d4edda; color: #155724; padding: 15px; border-radius: 10px; margin-bottom: 20px; text-align: center; }
+    .error-msg { background: #f8d7da; color: #721c24; padding: 15px; border-radius: 10px; margin-bottom: 20px; text-align: center; }
 </style>
-"""
+'''
 
-
-JS_SCRIPT = """
+JS_SCRIPT = '''
 <script>
-    (function() {
-        var savedTheme = localStorage.getItem('theme') || 'white';
-        document.documentElement.setAttribute('data-theme', savedTheme);
-    })();
-    function toggleThemePanel() {
-        var panel = document.getElementById('themePanel');
-        if (panel) panel.classList.toggle('open');
-    }
+    (function() { var savedTheme = localStorage.getItem('theme') || 'white'; document.documentElement.setAttribute('data-theme', savedTheme); })();
+    function toggleThemePanel() { var panel = document.getElementById('themePanel'); if (panel) panel.classList.toggle('open'); }
     function setTheme(name) {
         document.documentElement.setAttribute('data-theme', name);
         localStorage.setItem('theme', name);
         var options = document.querySelectorAll('.color-option');
         for (var i = 0; i < options.length; i++) {
             options[i].classList.remove('active');
-            if (options[i].getAttribute('data-theme') === name) {
-                options[i].classList.add('active');
-            }
+            if (options[i].getAttribute('data-theme') === name) options[i].classList.add('active');
         }
-        setTimeout(function() {
-            var panel = document.getElementById('themePanel');
-            if (panel) panel.classList.remove('open');
-        }, 300);
+        setTimeout(function() { var panel = document.getElementById('themePanel'); if (panel) panel.classList.remove('open'); }, 300);
     }
     function toggleMenu() {
         var menu = document.getElementById('dropdownMenu');
@@ -592,13 +268,8 @@ JS_SCRIPT = """
         var menuBtn = document.getElementById('menuBtn');
         var themePanel = document.getElementById('themePanel');
         var themeBtn = document.getElementById('themeBtn');
-        if (menu && menuBtn && !menu.contains(e.target) && !menuBtn.contains(e.target)) {
-            menu.classList.remove('open');
-            menuBtn.classList.remove('active');
-        }
-        if (themePanel && themeBtn && !themePanel.contains(e.target) && !themeBtn.contains(e.target)) {
-            themePanel.classList.remove('open');
-        }
+        if (menu && menuBtn && !menu.contains(e.target) && !menuBtn.contains(e.target)) { menu.classList.remove('open'); menuBtn.classList.remove('active'); }
+        if (themePanel && themeBtn && !themePanel.contains(e.target) && !themeBtn.contains(e.target)) { themePanel.classList.remove('open'); }
     });
     function measurePing() {
         var start = performance.now();
@@ -609,39 +280,79 @@ JS_SCRIPT = """
                 var el = document.getElementById('pingValue');
                 var dot = document.getElementById('pingDot');
                 if (el) el.textContent = ping + ' ms';
-                if (dot) {
-                    if (ping < 200) dot.style.background = '#22c55e';
-                    else if (ping < 500) dot.style.background = '#f59e0b';
-                    else dot.style.background = '#ef4444';
-                }
+                if (dot) { if (ping < 200) dot.style.background = '#22c55e'; else if (ping < 500) dot.style.background = '#f59e0b'; else dot.style.background = '#ef4444'; }
             })
-            .catch(function() {
-                var el = document.getElementById('pingValue');
-                if (el) el.textContent = '-- ms';
-            });
+            .catch(function() { var el = document.getElementById('pingValue'); if (el) el.textContent = '-- ms'; });
     }
     window.addEventListener('DOMContentLoaded', function() {
         var savedTheme = localStorage.getItem('theme') || 'white';
         var options = document.querySelectorAll('.color-option');
-        for (var i = 0; i < options.length; i++) {
-            if (options[i].getAttribute('data-theme') === savedTheme) {
-                options[i].classList.add('active');
-            }
-        }
+        for (var i = 0; i < options.length; i++) { if (options[i].getAttribute('data-theme') === savedTheme) options[i].classList.add('active'); }
         measurePing();
         setInterval(measurePing, 5000);
     });
 </script>
-"""
+'''
 
-
-HEADER_HTML = """
+HEADER_HTML = '''
 <header>
     <div class="header-inner">
         <div class="menu-wrapper">
-            <button class="menu-btn" id="menuBtn" onclick="toggleMenu()" title="منو">
-                <span></span>
-                <span></span>
-                <span></span>
-            </button>
-          
+            <button class="menu-btn" id="menuBtn" onclick="toggleMenu()" title="منو"><span></span><span></span><span></span></button>
+            <div class="dropdown-menu" id="dropdownMenu">
+                <a href="/">خانه</a>
+                <a href="/blog">وبلاگ</a>
+                <a href="/portfolio">نمونه‌کارها</a>
+                <a href="/contact">تماس با من</a>
+            </div>
+        </div>
+        <div class="greeting">سلام خوش اومدی</div>
+        <div class="header-right">
+            <div class="ping-box"><span class="ping-dot" id="pingDot"></span><span id="pingValue">-- ms</span></div>
+            <div class="theme-wrapper">
+                <button class="theme-btn" id="themeBtn" onclick="toggleThemePanel()" title="تغییر تم">🎨</button>
+                <div class="theme-panel" id="themePanel">
+                    <p>انتخاب تم</p>
+                    <div class="color-options">
+                        <div class="color-option" data-theme="white" onclick="setTheme('white')" style="background: #ffffff; border: 2px solid #ddd;" title="سفید"></div>
+                        <div class="color-option" data-theme="black" onclick="setTheme('black')" style="background: #1a1a1a;" title="مشکی"></div>
+                        <div class="color-option" data-theme="yellow" onclick="setTheme('yellow')" style="background: #f9d423;" title="زرد"></div>
+                        <div class="color-option" data-theme="cream" onclick="setTheme('cream')" style="background: #e8d5b7;" title="کرم"></div>
+                        <div class="color-option" data-theme="purple" onclick="setTheme('purple')" style="background: #7c3aed;" title="بنفش"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+<a href="/contact" class="contact-float" title="ارتباط با من">💬</a>
+'''
+
+
+def page_template(title, body_content, extra_head=""):
+    html = "<!DOCTYPE html>\n"
+    html += '<html lang="fa" dir="rtl">\n'
+    html += "<head>\n"
+    html += '<meta charset="UTF-8">\n'
+    html += '<meta name="viewport" content="width=device-width, initial-scale=1.0">\n'
+    html += "<title>" + title + "</title>\n"
+    html += CSS
+    html += extra_head
+    html += JS_SCRIPT
+    html += "</head>\n"
+    html += "<body>\n"
+    html += HEADER_HTML
+    html += body_content
+    html += "\n</body>\n</html>"
+    return html
+
+
+@app.route("/ping")
+def ping():
+    return jsonify({"ok": True})
+
+
+@app.route("/")
+def home():
+    count = increment_visit()
+    body = '<div class="container"><div class="card"><div class="emoji">👋</div><h1>سلام! خوش اومدی</h1><p>این اولین وب‌سایت منه که با پایتون و Flask ساختم.</p><a href="/blog" class="btn">وبلاگم رو بخون</a> <a href="/portfolio" class="btn btn-secondary">نمونه‌کارهام</a></div><div class="stats"><div class="stat-card"><div class="stat-number">' + str(count) + '</div><div class="stat-label">بازدید کل</div></div><div class="stat-card"><div class="stat-number">5</d
