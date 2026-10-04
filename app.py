@@ -2,18 +2,22 @@ import os
 import sqlite3
 import urllib.request
 import urllib.parse
-from flask import Flask, request, redirect
+import uuid
+from flask import Flask, request, redirect, jsonify
 
 app = Flask(__name__)
 
 BOT_TOKEN = os.environ.get("BOT_TOKEN", "")
 ADMIN_ID = os.environ.get("ADMIN_ID", "")
+SITE_URL = os.environ.get("RENDER_EXTERNAL_URL", "")
 
-DB_NAME = "visits.db"
+DB_NAME = "site_data.db"
 
+# ---------------- دیتابیس ----------------
 def init_db():
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
+    
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS counter (
             id INTEGER PRIMARY KEY,
@@ -23,7 +27,18 @@ def init_db():
     cursor.execute("SELECT count FROM counter WHERE id = 1")
     if cursor.fetchone() is None:
         cursor.execute("INSERT INTO counter (id, count) VALUES (1, 0)")
-        conn.commit()
+    
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS messages (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            conversation_id TEXT,
+            sender TEXT,
+            text TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+    
+    conn.commit()
     conn.close()
 
 def increment_visit():
@@ -44,34 +59,70 @@ def get_visit_count():
     conn.close()
     return result[0] if result else 0
 
+def save_message(conversation_id, sender, text):
+    conn = sqlite3.connect(DB_NAME)
+    cursor = conn.cursor()
+    cursor.execute(
+        "INSERT INTO messages (conversation_id, sender, text) VALUES (?, ?, ?)",
+        (conversation_id, sender, text)
+    )
+    conn.commit()
+    conn.close()
+
+def get_messages(conversation_id, after_id=0):
+    conn = sqlite3.connect(DB_NAME)
+    cursor = conn.cursor()
+    cursor.execute(
+        "SELECT id, sender, text FROM messages WHERE conversation_id = ? AND id > ? ORDER BY id",
+        (conversation_id, after_id)
+    )
+    rows = cursor.fetchall()
+    conn.close()
+    return [{"id": r[0], "sender": r[1], "text": r[2]} for r in rows]
+
+# ---------------- ارسال به تلگرام ----------------
+def notify_admin(conversation_id, text):
+    if not BOT_TOKEN or not ADMIN_ID:
+        return False
+    
+    msg = (
+        f"پیام جدید از سایت\n\n"
+        f"شناسه گفتگو: {conversation_id}\n\n"
+        f"پیام:\n{text}\n\n"
+        f"برای پاسخ، روی همین پیام Reply بزن."
+    )
+    
+    url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
+    data = urllib.parse.urlencode({
+        "chat_id": ADMIN_ID,
+        "text": msg
+    }).encode()
+    
+    try:
+        urllib.request.urlopen(url, data=data)
+        return True
+    except Exception as e:
+        print(f"Error: {e}")
+        return False
+
+# ---------------- CSS ----------------
 CSS = """
 <style>
     :root {
         --bg-gradient: linear-gradient(-45deg, #667eea, #764ba2, #f093fb, #4facfe);
         --card-bg: #ffffff;
         --text-color: #333333;
-        --text-secondary: #555555;
         --heading-color: #764ba2;
         --header-bg: rgba(255, 255, 255, 0.95);
-        --input-border: #e0e0e0;
-        --stat-bg: #f8f9ff;
-        --stat-hover: #eef2ff;
     }
-    
     [data-theme="dark"] {
         --bg-gradient: linear-gradient(-45deg, #1a1a2e, #16213e, #0f3460, #1a1a2e);
         --card-bg: #1f2937;
         --text-color: #e5e7eb;
-        --text-secondary: #9ca3af;
         --heading-color: #a78bfa;
         --header-bg: rgba(31, 41, 55, 0.95);
-        --input-border: #374151;
-        --stat-bg: #111827;
-        --stat-hover: #1f2937;
     }
-    
-    * { margin: 0; padding: 0; box-sizing: border-box; transition: background-color 0.3s, color 0.3s; }
-    
+    * { margin: 0; padding: 0; box-sizing: border-box; }
     @keyframes gradientShift {
         0% { background-position: 0% 50%; }
         50% { background-position: 100% 50%; }
@@ -81,19 +132,6 @@ CSS = """
         from { opacity: 0; transform: translateY(30px); }
         to { opacity: 1; transform: translateY(0); }
     }
-    @keyframes float {
-        0%, 100% { transform: translateY(0); }
-        50% { transform: translateY(-15px); }
-    }
-    @keyframes pulse {
-        0%, 100% { box-shadow: 0 0 0 0 rgba(118, 75, 162, 0.7); }
-        50% { box-shadow: 0 0 0 15px rgba(118, 75, 162, 0); }
-    }
-    @keyframes bounce {
-        0%, 100% { transform: translateY(0); }
-        50% { transform: translateY(-10px); }
-    }
-    
     body {
         font-family: Tahoma, sans-serif;
         background: var(--bg-gradient);
@@ -102,16 +140,11 @@ CSS = """
         min-height: 100vh;
         color: var(--text-color);
     }
-    
     header {
         background: var(--header-bg);
         padding: 20px;
         box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        position: sticky;
-        top: 0;
-        z-index: 100;
     }
-    
     nav {
         display: flex;
         justify-content: space-between;
@@ -119,41 +152,13 @@ CSS = """
         max-width: 900px;
         margin: 0 auto;
     }
-    
-    .logo {
-        font-size: 22px;
-        font-weight: bold;
-        color: var(--heading-color);
-        transition: transform 0.3s;
-    }
-    .logo:hover { transform: scale(1.1); }
-    
-    .nav-links {
-        display: flex;
-        align-items: center;
-    }
-    
+    .logo { font-size: 22px; font-weight: bold; color: var(--heading-color); }
     nav a {
         color: var(--heading-color);
         text-decoration: none;
         margin-right: 20px;
         font-size: 16px;
-        position: relative;
-        transition: color 0.3s;
     }
-    nav a::after {
-        content: '';
-        position: absolute;
-        bottom: -5px;
-        right: 0;
-        width: 0;
-        height: 2px;
-        background: #667eea;
-        transition: width 0.3s;
-    }
-    nav a:hover::after { width: 100%; }
-    nav a:hover { color: #667eea; }
-    
     .theme-btn {
         background: transparent;
         border: 2px solid var(--heading-color);
@@ -163,166 +168,99 @@ CSS = """
         border-radius: 50%;
         cursor: pointer;
         font-size: 18px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: transform 0.3s, background 0.3s;
     }
-    .theme-btn:hover {
-        transform: rotate(20deg) scale(1.1);
-        background: var(--heading-color);
-        color: #fff;
-    }
-    
-    .container { max-width: 900px; margin: 60px auto; padding: 0 20px; }
-    
-    .card {
+    .container { max-width: 700px; margin: 40px auto; padding: 0 20px; }
+    .chat-box {
         background: var(--card-bg);
-        padding: 50px 40px;
         border-radius: 20px;
         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-        text-align: center;
-        animation: fadeInUp 0.8s ease;
-        transition: transform 0.3s, box-shadow 0.3s, background 0.3s;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        height: 70vh;
     }
-    .card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
-    }
-    
-    .emoji {
-        font-size: 70px;
-        display: inline-block;
-        animation: float 3s ease-in-out infinite;
-        margin-bottom: 20px;
-    }
-    
-    h1 {
-        color: var(--heading-color);
-        font-size: 34px;
-        margin-bottom: 20px;
-        animation: fadeInUp 1s ease;
-    }
-    
-    p {
-        font-size: 18px;
-        line-height: 1.8;
-        color: var(--text-secondary);
-        margin-bottom: 30px;
-        animation: fadeInUp 1.2s ease;
-    }
-    
-    .btn {
-        display: inline-block;
+    .chat-header {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: #fff;
-        padding: 16px 35px;
-        border-radius: 30px;
-        text-decoration: none;
-        font-size: 16px;
-        border: none;
-        cursor: pointer;
-        font-family: Tahoma, sans-serif;
-        transition: transform 0.3s, box-shadow 0.3s;
-        animation: pulse 2s infinite;
+        padding: 20px;
+        text-align: center;
     }
-    .btn:hover {
-        transform: translateY(-3px) scale(1.05);
-        box-shadow: 0 15px 30px rgba(118, 75, 162, 0.4);
+    .chat-header h1 { font-size: 20px; }
+    .chat-header p { font-size: 13px; opacity: 0.9; margin-top: 5px; }
+    .chat-messages {
+        flex: 1;
+        overflow-y: auto;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        background: var(--card-bg);
     }
-    .btn:active { transform: translateY(0) scale(0.98); }
-    
-    form { display: flex; flex-direction: column; gap: 15px; text-align: right; }
-    
-    label {
-        font-size: 16px;
-        color: var(--text-secondary);
-        margin-bottom: 5px;
-        display: block;
+    .message {
+        max-width: 75%;
+        padding: 12px 16px;
+        border-radius: 15px;
+        font-size: 15px;
+        line-height: 1.6;
+        word-wrap: break-word;
+        animation: fadeInUp 0.3s ease;
     }
-    
-    input, textarea {
-        width: 100%;
-        padding: 14px 18px;
-        border: 2px solid var(--input-border);
-        border-radius: 10px;
-        font-size: 16px;
+    .message.user {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: #fff;
+        align-self: flex-end;
+        border-bottom-right-radius: 5px;
+    }
+    .message.admin {
+        background: #f0f0f5;
+        color: #333;
+        align-self: flex-start;
+        border-bottom-left-radius: 5px;
+    }
+    [data-theme="dark"] .message.admin {
+        background: #374151;
+        color: #e5e7eb;
+    }
+    .message.system {
+        background: transparent;
+        color: #999;
+        text-align: center;
+        align-self: center;
+        font-size: 13px;
+        padding: 5px;
+    }
+    .chat-input {
+        display: flex;
+        padding: 15px;
+        gap: 10px;
+        background: var(--card-bg);
+        border-top: 1px solid rgba(0, 0, 0, 0.1);
+    }
+    .chat-input input {
+        flex: 1;
+        padding: 12px 18px;
+        border: 2px solid #e0e0e0;
+        border-radius: 25px;
+        font-size: 15px;
         font-family: Tahoma, sans-serif;
         outline: none;
         background: var(--card-bg);
         color: var(--text-color);
-        transition: border-color 0.3s, box-shadow 0.3s;
     }
-    input:focus, textarea:focus {
-        border-color: #764ba2;
-        box-shadow: 0 0 0 4px rgba(118, 75, 162, 0.15);
-    }
-    textarea { resize: vertical; min-height: 120px; }
-    
-    footer {
-        text-align: center;
-        padding: 30px;
+    .chat-input input:focus { border-color: #764ba2; }
+    .chat-input button {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: #fff;
-        margin-top: 40px;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 25px;
+        cursor: pointer;
         font-size: 15px;
-        animation: fadeInUp 1.5s ease;
+        font-family: Tahoma, sans-serif;
     }
-    .heart { display: inline-block; animation: bounce 1s infinite; }
-    
-    .stats {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 20px;
-        margin-top: 30px;
-    }
-    
-    .stat-card {
-        background: var(--stat-bg);
-        padding: 25px;
-        border-radius: 15px;
-        text-align: center;
-        transition: transform 0.3s, background 0.3s;
-        animation: fadeInUp 0.8s ease backwards;
-    }
-    .stat-card:nth-child(1) { animation-delay: 0.2s; }
-    .stat-card:nth-child(2) { animation-delay: 0.4s; }
-    .stat-card:nth-child(3) { animation-delay: 0.6s; }
-    .stat-card:nth-child(4) { animation-delay: 0.8s; }
-    .stat-card:hover {
-        transform: translateY(-8px);
-        background: var(--stat-hover);
-    }
-    
-    .stat-number {
-        font-size: 36px;
-        font-weight: bold;
-        color: var(--heading-color);
-        margin-bottom: 10px;
-    }
-    .stat-label { font-size: 15px; color: var(--text-secondary); }
+    .chat-input button:hover { opacity: 0.9; }
 </style>
 """
-
-def send_to_telegram(name, email, message):
-    if not BOT_TOKEN or not ADMIN_ID:
-        return False
-    text = (
-        f"پیام جدید از سایت:\n\n"
-        f"اسم: {name}\n"
-        f"ایمیل: {email}\n\n"
-        f"پیام:\n{message}"
-    )
-    url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
-    data = urllib.parse.urlencode({
-        "chat_id": ADMIN_ID,
-        "text": text
-    }).encode()
-    try:
-        urllib.request.urlopen(url, data=data)
-        return True
-    except Exception as e:
-        print(f"Error: {e}")
-        return False
 
 def theme_script():
     return """
@@ -331,50 +269,34 @@ def theme_script():
             const savedTheme = localStorage.getItem('theme') || 'light';
             document.documentElement.setAttribute('data-theme', savedTheme);
         })();
-        
         function toggleTheme() {
             const current = document.documentElement.getAttribute('data-theme');
             const next = current === 'dark' ? 'light' : 'dark';
             document.documentElement.setAttribute('data-theme', next);
             localStorage.setItem('theme', next);
-            
             const btn = document.getElementById('themeBtn');
-            btn.textContent = next === 'dark' ? '☀️' : '🌙';
+            if (btn) btn.textContent = next === 'dark' ? '☀️' : '🌙';
         }
-        
         window.addEventListener('DOMContentLoaded', function() {
             const current = document.documentElement.getAttribute('data-theme');
             const btn = document.getElementById('themeBtn');
-            if (btn) {
-                btn.textContent = current === 'dark' ? '☀️' : '🌙';
-            }
+            if (btn) btn.textContent = current === 'dark' ? '☀️' : '🌙';
         });
     </script>
     """
 
 def header_html():
-    return f"""
+    return """
     <header>
         <nav>
             <div class="logo">سایت من</div>
-            <div class="nav-links">
+            <div>
                 <a href="/">خانه</a>
-                <a href="/about">درباره من</a>
-                <a href="/contact">تماس با من</a>
-                <button class="theme-btn" id="themeBtn" onclick="toggleTheme()" title="تغییر حالت">🌙</button>
+                <a href="/chat">چت</a>
+                <button class="theme-btn" id="themeBtn" onclick="toggleTheme()">🌙</button>
             </div>
         </nav>
     </header>
-    """
-
-def footer_html():
-    count = get_visit_count()
-    return f"""
-    <footer>
-        ساخته‌شده با <span class="heart">❤️</span> و پایتون
-        <br>
-        <span style="font-size: 13px; opacity: 0.8;">👀 بازدید: {count}</span>
-    </footer>
     """
 
 @app.route("/")
@@ -393,140 +315,149 @@ def home():
     <body>
         {header_html()}
         <div class="container">
-            <div class="card">
-                <div class="emoji">👋</div>
-                <h1>سلام! خوش اومدی</h1>
-                <p>این اولین وب‌سایت منه که با پایتون و Flask ساختم. دارم کم‌کم یاد می‌گیرم چطور وب‌سایت بسازم.</p>
-                <a href="/about" class="btn">درباره من بیشتر بدون</a>
+            <div class="chat-box" style="height:auto; padding: 60px 40px; text-align:center;">
+                <div style="font-size: 70px;">👋</div>
+                <h1 style="color: var(--heading-color); margin: 20px 0;">سلام! خوش اومدی</h1>
+                <p style="margin-bottom: 30px; line-height: 1.8;">این اولین وب‌سایت منه. می‌تونی با من چت کنی!</p>
+                <a href="/chat" style="display:inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color:#fff; padding: 16px 35px; border-radius: 30px; text-decoration: none; font-size: 16px;">شروع چت</a>
+                <p style="margin-top: 30px; font-size: 14px; color: #999;">👀 بازدید: {count}</p>
             </div>
+        </div>
+    </body>
+    </html>
+    """
+
+@app.route("/chat")
+def chat():
+    return f"""
+    <!DOCTYPE html>
+    <html lang="fa" dir="rtl">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>چت با من</title>
+        {CSS}
+        {theme_script()}
+    </head>
+    <body>
+        {header_html()}
+        <div class="container">
+            <div class="chat-box">
+                <div class="chat-header">
+                    <h1>چت با من</h1>
+                    <p>پیامت مستقیم به دستم می‌رسه</p>
+                </div>
+                <div class="chat-messages" id="messages">
+                    <div class="message system">گفتگو رو شروع کن...</div>
+                </div>
+                <div class="chat-input">
+                    <input type="text" id="messageInput" placeholder="پیامت رو بنویس..." onkeypress="if(event.key==='Enter') sendMessage()">
+                    <button onclick="sendMessage()">ارسال</button>
+                </div>
+            </div>
+        </div>
+        
+        <script>
+            let conversationId = localStorage.getItem('conversationId');
+            if (!conversationId) {{
+                conversationId = 'conv_' + Math.random().toString(36).substring(2, 15);
+                localStorage.setItem('conversationId', conversationId);
+            }}
             
-            <div class="stats">
-                <div class="stat-card">
-                    <div class="stat-number">۳</div>
-                    <div class="stat-label">صفحه سایت</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number">۲۴/۷</div>
-                    <div class="stat-label">آنلاین</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number">{count}</div>
-                    <div class="stat-label">بازدید کل</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number">∞</div>
-                    <div class="stat-label">انگیزه یادگیری</div>
-                </div>
-            </div>
-        </div>
-        {footer_html()}
+            let lastMessageId = 0;
+            const messagesDiv = document.getElementById('messages');
+            
+            function addMessage(sender, text) {{
+                const div = document.createElement('div');
+                div.className = 'message ' + sender;
+                div.textContent = text;
+                messagesDiv.appendChild(div);
+                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            }}
+            
+            async function sendMessage() {{
+                const input = document.getElementById('messageInput');
+                const text = input.value.trim();
+                if (!text) return;
+                
+                addMessage('user', text);
+                input.value = '';
+                
+                try {{
+                    await fetch('/api/send', {{
+                        method: 'POST',
+                        headers: {{'Content-Type': 'application/json'}},
+                        body: JSON.stringify({{
+                            conversation_id: conversationId,
+                            text: text
+                        }})
+                    }});
+                }} catch (e) {{
+                    addMessage('system', 'خطا در ارسال');
+                }}
+            }}
+            
+            async function fetchMessages() {{
+                try {{
+                    const res = await fetch('/api/messages?conversation_id=' + conversationId + '&after=' + lastMessageId);
+                    const data = await res.json();
+                    
+                    if (data.messages && data.messages.length > 0) {{
+                        data.messages.forEach(function(msg) {{
+                            if (msg.sender === 'admin') {{
+                                addMessage('admin', msg.text);
+                            }}
+                            lastMessageId = msg.id;
+                        }});
+                    }}
+                }} catch (e) {{}}
+            }}
+            
+            setInterval(fetchMessages, 3000);
+            fetchMessages();
+        </script>
     </body>
     </html>
     """
 
-@app.route("/about")
-def about():
-    return f"""
-    <!DOCTYPE html>
-    <html lang="fa" dir="rtl">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>درباره من</title>
-        {CSS}
-        {theme_script()}
-    </head>
-    <body>
-        {header_html()}
-        <div class="container">
-            <div class="card">
-                <div class="emoji">🚀</div>
-                <h1>درباره من</h1>
-                <p>من دارم پایتون یاد می‌گیرم و این اولین وب‌سایتمه. هدفم اینه که بتونم برنامه‌ها و وب‌سایت‌های واقعی بسازم.</p>
-                <a href="/" class="btn">برگرد به خانه</a>
-            </div>
-        </div>
-        {footer_html()}
-    </body>
-    </html>
-    """
+# ---------------- API ----------------
+@app.route("/api/send", methods=["POST"])
+def api_send():
+    data = request.get_json()
+    conversation_id = data.get("conversation_id", "").strip()
+    text = data.get("text", "").strip()
+    
+    if not conversation_id or not text:
+        return jsonify({"ok": False})
+    
+    save_message(conversation_id, "user", text)
+    notify_admin(conversation_id, text)
+    
+    return jsonify({"ok": True})
 
-@app.route("/contact")
-def contact():
-    return f"""
-    <!DOCTYPE html>
-    <html lang="fa" dir="rtl">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>تماس با من</title>
-        {CSS}
-        {theme_script()}
-    </head>
-    <body>
-        {header_html()}
-        <div class="container">
-            <div class="card">
-                <div class="emoji">💌</div>
-                <h1>تماس با من</h1>
-                <p>هر پیامی داری، اینجا بنویس. مستقیم به دستم می‌رسه.</p>
-                <form method="POST" action="/contact">
-                    <div>
-                        <label>اسمت:</label>
-                        <input type="text" name="name" required>
-                    </div>
-                    <div>
-                        <label>ایمیلت:</label>
-                        <input type="email" name="email" required>
-                    </div>
-                    <div>
-                        <label>پیامت:</label>
-                        <textarea name="message" required></textarea>
-                    </div>
-                    <button type="submit" class="btn">ارسال پیام</button>
-                </form>
-            </div>
-        </div>
-        {footer_html()}
-    </body>
-    </html>
-    """
+@app.route("/api/messages")
+def api_messages():
+    conversation_id = request.args.get("conversation_id", "")
+    after_id = int(request.args.get("after", 0))
+    
+    if not conversation_id:
+        return jsonify({"messages": []})
+    
+    msgs = get_messages(conversation_id, after_id)
+    return jsonify({"messages": msgs})
 
-@app.route("/contact", methods=["POST"])
-def contact_post():
-    name = request.form.get("name", "").strip()
-    email = request.form.get("email", "").strip()
-    message = request.form.get("message", "").strip()
+# ---------------- دریافت پاسخ از ربات ----------------
+@app.route("/api/admin_reply", methods=["POST"])
+def admin_reply():
+    data = request.get_json()
+    conversation_id = data.get("conversation_id", "").strip()
+    text = data.get("text", "").strip()
     
-    if not name or not email or not message:
-        return redirect("/contact")
+    if not conversation_id or not text:
+        return jsonify({"ok": False})
     
-    send_to_telegram(name, email, message)
-    
-    return f"""
-    <!DOCTYPE html>
-    <html lang="fa" dir="rtl">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>ارسال شد</title>
-        {CSS}
-        {theme_script()}
-    </head>
-    <body>
-        {header_html()}
-        <div class="container">
-            <div class="card">
-                <div class="emoji">✅</div>
-                <h1>پیامت ارسال شد!</h1>
-                <p>ممنون {name} جان. پیامت به دستم رسید.</p>
-                <a href="/" class="btn">برگرد به خانه</a>
-            </div>
-        </div>
-        {footer_html()}
-    </body>
-    </html>
-    """
+    save_message(conversation_id, "admin", text)
+    return jsonify({"ok": True})
 
 init_db()
 
