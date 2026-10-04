@@ -2,14 +2,13 @@ import os
 import sqlite3
 import urllib.request
 import urllib.parse
-import uuid
+import json
 from flask import Flask, request, redirect, jsonify
 
 app = Flask(__name__)
 
 BOT_TOKEN = os.environ.get("BOT_TOKEN", "")
 ADMIN_ID = os.environ.get("ADMIN_ID", "")
-SITE_URL = os.environ.get("RENDER_EXTERNAL_URL", "")
 
 DB_NAME = "site_data.db"
 
@@ -17,7 +16,6 @@ DB_NAME = "site_data.db"
 def init_db():
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
-    
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS counter (
             id INTEGER PRIMARY KEY,
@@ -27,17 +25,6 @@ def init_db():
     cursor.execute("SELECT count FROM counter WHERE id = 1")
     if cursor.fetchone() is None:
         cursor.execute("INSERT INTO counter (id, count) VALUES (1, 0)")
-    
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS messages (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            conversation_id TEXT,
-            sender TEXT,
-            text TEXT,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )
-    """)
-    
     conn.commit()
     conn.close()
 
@@ -59,45 +46,12 @@ def get_visit_count():
     conn.close()
     return result[0] if result else 0
 
-def save_message(conversation_id, sender, text):
-    conn = sqlite3.connect(DB_NAME)
-    cursor = conn.cursor()
-    cursor.execute(
-        "INSERT INTO messages (conversation_id, sender, text) VALUES (?, ?, ?)",
-        (conversation_id, sender, text)
-    )
-    conn.commit()
-    conn.close()
-
-def get_messages(conversation_id, after_id=0):
-    conn = sqlite3.connect(DB_NAME)
-    cursor = conn.cursor()
-    cursor.execute(
-        "SELECT id, sender, text FROM messages WHERE conversation_id = ? AND id > ? ORDER BY id",
-        (conversation_id, after_id)
-    )
-    rows = cursor.fetchall()
-    conn.close()
-    return [{"id": r[0], "sender": r[1], "text": r[2]} for r in rows]
-
-# ---------------- ارسال به تلگرام ----------------
-def notify_admin(conversation_id, text):
+def send_to_telegram(name, email, message):
     if not BOT_TOKEN or not ADMIN_ID:
         return False
-    
-    msg = (
-        f"پیام جدید از سایت\n\n"
-        f"شناسه گفتگو: {conversation_id}\n\n"
-        f"پیام:\n{text}\n\n"
-        f"برای پاسخ، روی همین پیام Reply بزن."
-    )
-    
+    text = f"پیام جدید از سایت\n\nاسم: {name}\nایمیل: {email}\n\nپیام:\n{message}"
     url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
-    data = urllib.parse.urlencode({
-        "chat_id": ADMIN_ID,
-        "text": msg
-    }).encode()
-    
+    data = urllib.parse.urlencode({"chat_id": ADMIN_ID, "text": text}).encode()
     try:
         urllib.request.urlopen(url, data=data)
         return True
@@ -105,24 +59,66 @@ def notify_admin(conversation_id, text):
         print(f"Error: {e}")
         return False
 
-# ---------------- CSS ----------------
+# ---------------- CSS با تم‌های مختلف ----------------
 CSS = """
 <style>
-    :root {
+    :root, [data-theme="white"] {
         --bg-gradient: linear-gradient(-45deg, #667eea, #764ba2, #f093fb, #4facfe);
         --card-bg: #ffffff;
         --text-color: #333333;
+        --text-secondary: #555555;
         --heading-color: #764ba2;
         --header-bg: rgba(255, 255, 255, 0.95);
+        --input-border: #e0e0e0;
+        --accent: #667eea;
     }
-    [data-theme="dark"] {
-        --bg-gradient: linear-gradient(-45deg, #1a1a2e, #16213e, #0f3460, #1a1a2e);
-        --card-bg: #1f2937;
-        --text-color: #e5e7eb;
+    
+    [data-theme="black"] {
+        --bg-gradient: linear-gradient(-45deg, #0f0f0f, #1a1a1a, #2d2d2d, #0f0f0f);
+        --card-bg: #1a1a1a;
+        --text-color: #f5f5f5;
+        --text-secondary: #b0b0b0;
         --heading-color: #a78bfa;
-        --header-bg: rgba(31, 41, 55, 0.95);
+        --header-bg: rgba(26, 26, 26, 0.95);
+        --input-border: #333333;
+        --accent: #a78bfa;
     }
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    [data-theme="yellow"] {
+        --bg-gradient: linear-gradient(-45deg, #f9d423, #ff4e50, #f9d423, #f6b93b);
+        --card-bg: #fffbea;
+        --text-color: #3a2e00;
+        --text-secondary: #6b5500;
+        --heading-color: #b8860b;
+        --header-bg: rgba(255, 251, 234, 0.95);
+        --input-border: #f0e0a0;
+        --accent: #b8860b;
+    }
+    
+    [data-theme="cream"] {
+        --bg-gradient: linear-gradient(-45deg, #f5e6d3, #e8d5b7, #f5e6d3, #d4c4a8);
+        --card-bg: #fffaf0;
+        --text-color: #4a3f2f;
+        --text-secondary: #6b5d4a;
+        --heading-color: #8b6f47;
+        --header-bg: rgba(255, 250, 240, 0.95);
+        --input-border: #e8dcc8;
+        --accent: #8b6f47;
+    }
+    
+    [data-theme="purple"] {
+        --bg-gradient: linear-gradient(-45deg, #667eea, #764ba2, #a78bfa, #8b5cf6);
+        --card-bg: #faf5ff;
+        --text-color: #3b1f5e;
+        --text-secondary: #6b4a8f;
+        --heading-color: #7c3aed;
+        --header-bg: rgba(250, 245, 255, 0.95);
+        --input-border: #e9d5ff;
+        --accent: #7c3aed;
+    }
+    
+    * { margin: 0; padding: 0; box-sizing: border-box; transition: background-color 0.4s, color 0.4s; }
+    
     @keyframes gradientShift {
         0% { background-position: 0% 50%; }
         50% { background-position: 100% 50%; }
@@ -132,6 +128,23 @@ CSS = """
         from { opacity: 0; transform: translateY(30px); }
         to { opacity: 1; transform: translateY(0); }
     }
+    @keyframes float {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-15px); }
+    }
+    @keyframes pulse {
+        0%, 100% { box-shadow: 0 0 0 0 rgba(118, 75, 162, 0.7); }
+        50% { box-shadow: 0 0 0 15px rgba(118, 75, 162, 0); }
+    }
+    @keyframes slideDown {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes pingPulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.5; }
+    }
+    
     body {
         font-family: Tahoma, sans-serif;
         background: var(--bg-gradient);
@@ -140,25 +153,141 @@ CSS = """
         min-height: 100vh;
         color: var(--text-color);
     }
+    
+    /* ---------- هدر ---------- */
     header {
         background: var(--header-bg);
-        padding: 20px;
+        padding: 15px 20px;
         box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        position: sticky;
+        top: 0;
+        z-index: 100;
     }
-    nav {
+    
+    .header-inner {
+        max-width: 900px;
+        margin: 0 auto;
         display: flex;
         justify-content: space-between;
         align-items: center;
-        max-width: 900px;
-        margin: 0 auto;
+        gap: 10px;
     }
-    .logo { font-size: 22px; font-weight: bold; color: var(--heading-color); }
-    nav a {
-        color: var(--heading-color);
+    
+    /* ---------- منوی همبرگری ---------- */
+    .menu-wrapper {
+        position: relative;
+        flex-shrink: 0;
+    }
+    
+    .menu-btn {
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        padding: 8px;
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        border-radius: 8px;
+        transition: background 0.3s;
+    }
+    
+    .menu-btn:hover {
+        background: rgba(118, 75, 162, 0.1);
+    }
+    
+    .menu-btn span {
+        display: block;
+        width: 26px;
+        height: 3px;
+        background: var(--heading-color);
+        border-radius: 3px;
+        transition: transform 0.3s;
+    }
+    
+    .menu-btn.active span:nth-child(1) {
+        transform: translateY(8px) rotate(45deg);
+    }
+    .menu-btn.active span:nth-child(2) {
+        opacity: 0;
+    }
+    .menu-btn.active span:nth-child(3) {
+        transform: translateY(-8px) rotate(-45deg);
+    }
+    
+    .dropdown-menu {
+        position: absolute;
+        top: 50px;
+        right: 0;
+        background: var(--card-bg);
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        padding: 10px;
+        min-width: 180px;
+        display: none;
+        z-index: 200;
+    }
+    
+    .dropdown-menu.open {
+        display: block;
+        animation: slideDown 0.3s ease;
+    }
+    
+    .dropdown-menu a {
+        display: block;
+        padding: 12px 16px;
+        color: var(--text-color);
         text-decoration: none;
-        margin-right: 20px;
-        font-size: 16px;
+        border-radius: 8px;
+        font-size: 15px;
+        transition: background 0.2s;
     }
+    
+    .dropdown-menu a:hover {
+        background: var(--accent);
+        color: #fff;
+    }
+    
+    /* ---------- پیام خوش‌آمد ---------- */
+    .greeting {
+        font-size: 17px;
+        font-weight: bold;
+        color: var(--heading-color);
+        text-align: center;
+        flex: 1;
+    }
+    
+    /* ---------- سمت راست (پینگ + تم) ---------- */
+    .header-right {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-shrink: 0;
+    }
+    
+    .ping-box {
+        background: rgba(118, 75, 162, 0.1);
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 13px;
+        color: var(--heading-color);
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    
+    .ping-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #22c55e;
+        animation: pingPulse 2s infinite;
+    }
+    
+    .theme-wrapper {
+        position: relative;
+    }
+    
     .theme-btn {
         background: transparent;
         border: 2px solid var(--heading-color);
@@ -168,97 +297,164 @@ CSS = """
         border-radius: 50%;
         cursor: pointer;
         font-size: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: transform 0.3s;
     }
-    .container { max-width: 700px; margin: 40px auto; padding: 0 20px; }
-    .chat-box {
+    
+    .theme-btn:hover {
+        transform: rotate(20deg) scale(1.1);
+    }
+    
+    .theme-panel {
+        position: absolute;
+        top: 50px;
+        left: 0;
         background: var(--card-bg);
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        padding: 15px;
+        display: none;
+        z-index: 200;
+    }
+    
+    .theme-panel.open {
+        display: block;
+        animation: slideDown 0.3s ease;
+    }
+    
+    .theme-panel p {
+        font-size: 13px;
+        color: var(--text-secondary);
+        margin-bottom: 10px;
+        text-align: center;
+    }
+    
+    .color-options {
+        display: flex;
+        gap: 10px;
+    }
+    
+    .color-option {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        border: 3px solid transparent;
+        cursor: pointer;
+        transition: transform 0.2s, border-color 0.2s;
+    }
+    
+    .color-option:hover {
+        transform: scale(1.15);
+    }
+    
+    .color-option.active {
+        border-color: var(--heading-color);
+    }
+    
+    /* ---------- دکمه‌ی ارتباط شناور ---------- */
+    .contact-float {
+        position: fixed;
+        bottom: 25px;
+        left: 25px;
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 26px;
+        text-decoration: none;
+        box-shadow: 0 6px 20px rgba(118, 75, 162, 0.5);
+        z-index: 90;
+        animation: pulse 2s infinite;
+        transition: transform 0.3s;
+    }
+    
+    .contact-float:hover {
+        transform: scale(1.15) rotate(10deg);
+    }
+    
+    /* ---------- کارت ---------- */
+    .container { max-width: 900px; margin: 40px auto; padding: 0 20px; }
+    
+    .card {
+        background: var(--card-bg);
+        padding: 50px 40px;
         border-radius: 20px;
         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-        overflow: hidden;
-        display: flex;
-        flex-direction: column;
-        height: 70vh;
+        text-align: center;
+        animation: fadeInUp 0.8s ease;
     }
-    .chat-header {
+    
+    .emoji {
+        font-size: 70px;
+        display: inline-block;
+        animation: float 3s ease-in-out infinite;
+        margin-bottom: 20px;
+    }
+    
+    h1 { color: var(--heading-color); font-size: 34px; margin-bottom: 20px; }
+    p { font-size: 18px; line-height: 1.8; color: var(--text-secondary); margin-bottom: 30px; }
+    
+    .btn {
+        display: inline-block;
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: #fff;
-        padding: 20px;
-        text-align: center;
+        padding: 16px 35px;
+        border-radius: 30px;
+        text-decoration: none;
+        font-size: 16px;
+        border: none;
+        cursor: pointer;
+        font-family: Tahoma, sans-serif;
+        transition: transform 0.3s;
     }
-    .chat-header h1 { font-size: 20px; }
-    .chat-header p { font-size: 13px; opacity: 0.9; margin-top: 5px; }
-    .chat-messages {
-        flex: 1;
-        overflow-y: auto;
-        padding: 20px;
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-        background: var(--card-bg);
-    }
-    .message {
-        max-width: 75%;
-        padding: 12px 16px;
-        border-radius: 15px;
-        font-size: 15px;
-        line-height: 1.6;
-        word-wrap: break-word;
-        animation: fadeInUp 0.3s ease;
-    }
-    .message.user {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: #fff;
-        align-self: flex-end;
-        border-bottom-right-radius: 5px;
-    }
-    .message.admin {
-        background: #f0f0f5;
-        color: #333;
-        align-self: flex-start;
-        border-bottom-left-radius: 5px;
-    }
-    [data-theme="dark"] .message.admin {
-        background: #374151;
-        color: #e5e7eb;
-    }
-    .message.system {
-        background: transparent;
-        color: #999;
-        text-align: center;
-        align-self: center;
-        font-size: 13px;
-        padding: 5px;
-    }
-    .chat-input {
-        display: flex;
-        padding: 15px;
-        gap: 10px;
-        background: var(--card-bg);
-        border-top: 1px solid rgba(0, 0, 0, 0.1);
-    }
-    .chat-input input {
-        flex: 1;
-        padding: 12px 18px;
-        border: 2px solid #e0e0e0;
-        border-radius: 25px;
-        font-size: 15px;
+    
+    .btn:hover { transform: translateY(-3px) scale(1.05); }
+    
+    form { display: flex; flex-direction: column; gap: 15px; text-align: right; }
+    label { font-size: 16px; color: var(--text-secondary); margin-bottom: 5px; display: block; }
+    
+    input, textarea {
+        width: 100%;
+        padding: 14px 18px;
+        border: 2px solid var(--input-border);
+        border-radius: 10px;
+        font-size: 16px;
         font-family: Tahoma, sans-serif;
         outline: none;
         background: var(--card-bg);
         color: var(--text-color);
     }
-    .chat-input input:focus { border-color: #764ba2; }
-    .chat-input button {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: #fff;
-        border: none;
-        padding: 12px 24px;
-        border-radius: 25px;
-        cursor: pointer;
-        font-size: 15px;
-        font-family: Tahoma, sans-serif;
+    input:focus, textarea:focus { border-color: var(--accent); }
+    textarea { resize: vertical; min-height: 120px; }
+    
+    .stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        margin-top: 30px;
     }
-    .chat-input button:hover { opacity: 0.9; }
+    .stat-card {
+        background: var(--card-bg);
+        padding: 25px;
+        border-radius: 15px;
+        text-align: center;
+    }
+    .stat-number { font-size: 36px; font-weight: bold; color: var(--heading-color); margin-bottom: 10px; }
+    .stat-label { font-size: 15px; color: var(--text-secondary); }
+    
+    footer { text-align: center; padding: 30px; color: #fff; margin-top: 40px; font-size: 15px; }
+    
+    @media (max-width: 600px) {
+        .greeting { font-size: 14px; }
+        .ping-box { font-size: 11px; padding: 4px 8px; }
+        .menu-btn span { width: 22px; }
+    }
 </style>
 """
 
@@ -266,21 +462,77 @@ def theme_script():
     return """
     <script>
         (function() {
-            const savedTheme = localStorage.getItem('theme') || 'light';
+            const savedTheme = localStorage.getItem('theme') || 'white';
             document.documentElement.setAttribute('data-theme', savedTheme);
         })();
-        function toggleTheme() {
-            const current = document.documentElement.getAttribute('data-theme');
-            const next = current === 'dark' ? 'light' : 'dark';
-            document.documentElement.setAttribute('data-theme', next);
-            localStorage.setItem('theme', next);
-            const btn = document.getElementById('themeBtn');
-            if (btn) btn.textContent = next === 'dark' ? '☀️' : '🌙';
+        
+        function toggleThemePanel() {
+            const panel = document.getElementById('themePanel');
+            if (panel) panel.classList.toggle('open');
         }
+        
+        function setTheme(name) {
+            document.documentElement.setAttribute('data-theme', name);
+            localStorage.setItem('theme', name);
+            document.querySelectorAll('.color-option').forEach(function(el) {
+                el.classList.remove('active');
+                if (el.dataset.theme === name) el.classList.add('active');
+            });
+            setTimeout(function() {
+                const panel = document.getElementById('themePanel');
+                if (panel) panel.classList.remove('open');
+            }, 300);
+        }
+        
+        function toggleMenu() {
+            const menu = document.getElementById('dropdownMenu');
+            const btn = document.getElementById('menuBtn');
+            if (menu) menu.classList.toggle('open');
+            if (btn) btn.classList.toggle('active');
+        }
+        
+        window.addEventListener('click', function(e) {
+            const menu = document.getElementById('dropdownMenu');
+            const menuBtn = document.getElementById('menuBtn');
+            const themePanel = document.getElementById('themePanel');
+            const themeBtn = document.getElementById('themeBtn');
+            
+            if (menu && menuBtn && !menu.contains(e.target) && !menuBtn.contains(e.target)) {
+                menu.classList.remove('open');
+                menuBtn.classList.remove('active');
+            }
+            if (themePanel && themeBtn && !themePanel.contains(e.target) && !themeBtn.contains(e.target)) {
+                themePanel.classList.remove('open');
+            }
+        });
+        
+        async function measurePing() {
+            const start = performance.now();
+            try {
+                await fetch('/ping?t=' + Date.now(), {cache: 'no-store'});
+                const end = performance.now();
+                const ping = Math.round(end - start);
+                const el = document.getElementById('pingValue');
+                const dot = document.getElementById('pingDot');
+                if (el) el.textContent = ping + ' ms';
+                if (dot) {
+                    if (ping < 200) dot.style.background = '#22c55e';
+                    else if (ping < 500) dot.style.background = '#f59e0b';
+                    else dot.style.background = '#ef4444';
+                }
+            } catch(e) {
+                const el = document.getElementById('pingValue');
+                if (el) el.textContent = '-- ms';
+            }
+        }
+        
         window.addEventListener('DOMContentLoaded', function() {
-            const current = document.documentElement.getAttribute('data-theme');
-            const btn = document.getElementById('themeBtn');
-            if (btn) btn.textContent = current === 'dark' ? '☀️' : '🌙';
+            const savedTheme = localStorage.getItem('theme') || 'white';
+            document.querySelectorAll('.color-option').forEach(function(el) {
+                if (el.dataset.theme === savedTheme) el.classList.add('active');
+            });
+            measurePing();
+            setInterval(measurePing, 5000);
         });
     </script>
     """
@@ -288,16 +540,57 @@ def theme_script():
 def header_html():
     return """
     <header>
-        <nav>
-            <div class="logo">سایت من</div>
-            <div>
-                <a href="/">خانه</a>
-                <a href="/chat">چت</a>
-                <button class="theme-btn" id="themeBtn" onclick="toggleTheme()">🌙</button>
+        <div class="header-inner">
+            <div class="menu-wrapper">
+                <button class="menu-btn" id="menuBtn" onclick="toggleMenu()" title="منو">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+                <div class="dropdown-menu" id="dropdownMenu">
+                    <a href="/">خانه</a>
+                    <a href="/about">درباره من</a>
+                    <a href="/portfolio">نمونه‌کارها</a>
+                    <a href="/contact">تماس با من</a>
+                    <a href="/chat">چت با من</a>
+                </div>
             </div>
-        </nav>
+            
+            <div class="greeting">سلام خوش اومدی</div>
+            
+            <div class="header-right">
+                <div class="ping-box">
+                    <span class="ping-dot" id="pingDot"></span>
+                    <span id="pingValue">-- ms</span>
+                </div>
+                <div class="theme-wrapper">
+                    <button class="theme-btn" id="themeBtn" onclick="toggleThemePanel()" title="تغییر تم">🎨</button>
+                    <div class="theme-panel" id="themePanel">
+                        <p>انتخاب تم</p>
+                        <div class="color-options">
+                            <div class="color-option" data-theme="white" onclick="setTheme('white')" style="background: #ffffff; border: 2px solid #ddd;" title="سفید"></div>
+                            <div class="color-option" data-theme="black" onclick="setTheme('black')" style="background: #1a1a1a;" title="مشکی"></div>
+                            <div class="color-option" data-theme="yellow" onclick="setTheme('yellow')" style="background: #f9d423;" title="زرد"></div>
+                            <div class="color-option" data-theme="cream" onclick="setTheme('cream')" style="background: #e8d5b7;" title="کرم"></div>
+                            <div class="color-option" data-theme="purple" onclick="setTheme('purple')" style="background: #7c3aed;" title="بنفش"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </header>
+    
+    <a href="/contact" class="contact-float" title="ارتباط با من">💬</a>
     """
+
+def footer_html():
+    count = get_visit_count()
+    return f"<footer>ساخته‌شده با ❤️ و پایتون | 👀 بازدید: {count}</footer>"
+
+# ---------------- Routes ----------------
+@app.route("/ping")
+def ping():
+    return jsonify({"ok": True})
 
 @app.route("/")
 def home():
@@ -315,152 +608,38 @@ def home():
     <body>
         {header_html()}
         <div class="container">
-            <div class="chat-box" style="height:auto; padding: 60px 40px; text-align:center;">
-                <div style="font-size: 70px;">👋</div>
-                <h1 style="color: var(--heading-color); margin: 20px 0;">سلام! خوش اومدی</h1>
-                <p style="margin-bottom: 30px; line-height: 1.8;">این اولین وب‌سایت منه. می‌تونی با من چت کنی!</p>
-                <a href="/chat" style="display:inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color:#fff; padding: 16px 35px; border-radius: 30px; text-decoration: none; font-size: 16px;">شروع چت</a>
-                <p style="margin-top: 30px; font-size: 14px; color: #999;">👀 بازدید: {count}</p>
+            <div class="card">
+                <div class="emoji">👋</div>
+                <h1>سلام! خوش اومدی</h1>
+                <p>این اولین وب‌سایت منه که با پایتون و Flask ساختم.</p>
+                <a href="/portfolio" class="btn">نمونه‌کارهام رو ببین</a>
+            </div>
+            <div class="stats">
+                <div class="stat-card"><div class="stat-number">{count}</div><div class="stat-label">بازدید کل</div></div>
+                <div class="stat-card"><div class="stat-number">۴</div><div class="stat-label">صفحه سایت</div></div>
+                <div class="stat-card"><div class="stat-number">۲۴/۷</div><div class="stat-label">آنلاین</div></div>
             </div>
         </div>
+        {footer_html()}
     </body>
     </html>
     """
 
-@app.route("/chat")
-def chat():
+@app.route("/about")
+def about():
     return f"""
     <!DOCTYPE html>
     <html lang="fa" dir="rtl">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>چت با من</title>
+        <title>درباره من</title>
         {CSS}
         {theme_script()}
     </head>
     <body>
         {header_html()}
         <div class="container">
-            <div class="chat-box">
-                <div class="chat-header">
-                    <h1>چت با من</h1>
-                    <p>پیامت مستقیم به دستم می‌رسه</p>
-                </div>
-                <div class="chat-messages" id="messages">
-                    <div class="message system">گفتگو رو شروع کن...</div>
-                </div>
-                <div class="chat-input">
-                    <input type="text" id="messageInput" placeholder="پیامت رو بنویس..." onkeypress="if(event.key==='Enter') sendMessage()">
-                    <button onclick="sendMessage()">ارسال</button>
-                </div>
-            </div>
-        </div>
-        
-        <script>
-            let conversationId = localStorage.getItem('conversationId');
-            if (!conversationId) {{
-                conversationId = 'conv_' + Math.random().toString(36).substring(2, 15);
-                localStorage.setItem('conversationId', conversationId);
-            }}
-            
-            let lastMessageId = 0;
-            const messagesDiv = document.getElementById('messages');
-            
-            function addMessage(sender, text) {{
-                const div = document.createElement('div');
-                div.className = 'message ' + sender;
-                div.textContent = text;
-                messagesDiv.appendChild(div);
-                messagesDiv.scrollTop = messagesDiv.scrollHeight;
-            }}
-            
-            async function sendMessage() {{
-                const input = document.getElementById('messageInput');
-                const text = input.value.trim();
-                if (!text) return;
-                
-                addMessage('user', text);
-                input.value = '';
-                
-                try {{
-                    await fetch('/api/send', {{
-                        method: 'POST',
-                        headers: {{'Content-Type': 'application/json'}},
-                        body: JSON.stringify({{
-                            conversation_id: conversationId,
-                            text: text
-                        }})
-                    }});
-                }} catch (e) {{
-                    addMessage('system', 'خطا در ارسال');
-                }}
-            }}
-            
-            async function fetchMessages() {{
-                try {{
-                    const res = await fetch('/api/messages?conversation_id=' + conversationId + '&after=' + lastMessageId);
-                    const data = await res.json();
-                    
-                    if (data.messages && data.messages.length > 0) {{
-                        data.messages.forEach(function(msg) {{
-                            if (msg.sender === 'admin') {{
-                                addMessage('admin', msg.text);
-                            }}
-                            lastMessageId = msg.id;
-                        }});
-                    }}
-                }} catch (e) {{}}
-            }}
-            
-            setInterval(fetchMessages, 3000);
-            fetchMessages();
-        </script>
-    </body>
-    </html>
-    """
-
-# ---------------- API ----------------
-@app.route("/api/send", methods=["POST"])
-def api_send():
-    data = request.get_json()
-    conversation_id = data.get("conversation_id", "").strip()
-    text = data.get("text", "").strip()
+            <div class="card">
+                <div class="emoji">🚀</div>
     
-    if not conversation_id or not text:
-        return jsonify({"ok": False})
-    
-    save_message(conversation_id, "user", text)
-    notify_admin(conversation_id, text)
-    
-    return jsonify({"ok": True})
-
-@app.route("/api/messages")
-def api_messages():
-    conversation_id = request.args.get("conversation_id", "")
-    after_id = int(request.args.get("after", 0))
-    
-    if not conversation_id:
-        return jsonify({"messages": []})
-    
-    msgs = get_messages(conversation_id, after_id)
-    return jsonify({"messages": msgs})
-
-# ---------------- دریافت پاسخ از ربات ----------------
-@app.route("/api/admin_reply", methods=["POST"])
-def admin_reply():
-    data = request.get_json()
-    conversation_id = data.get("conversation_id", "").strip()
-    text = data.get("text", "").strip()
-    
-    if not conversation_id or not text:
-        return jsonify({"ok": False})
-    
-    save_message(conversation_id, "admin", text)
-    return jsonify({"ok": True})
-
-init_db()
-
-if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 8080))
-    app.run(host="0.0.0.0", port=port)
