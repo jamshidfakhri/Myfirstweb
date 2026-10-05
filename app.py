@@ -11,28 +11,50 @@ DB_NAME = "site_data.db"
 STYLE = """
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
+    :root {
+        --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        --card-bg: #ffffff;
+        --text-color: #333333;
+        --text-secondary: #555555;
+        --heading-color: #764ba2;
+        --link-color: #667eea;
+        --border-color: #eeeeee;
+        --input-border: #e0e0e0;
+    }
+    [data-theme="dark"] {
+        --bg-gradient: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        --card-bg: #1f2937;
+        --text-color: #e5e7eb;
+        --text-secondary: #b0b0b0;
+        --heading-color: #a78bfa;
+        --link-color: #a78bfa;
+        --border-color: #374151;
+        --input-border: #374151;
+    }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
         font-family: Tahoma, sans-serif;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: var(--bg-gradient);
         min-height: 100vh;
         padding: 20px;
-        color: #333;
+        color: var(--text-color);
         line-height: 1.8;
+        transition: background 0.4s, color 0.4s;
     }
     .box {
-        background: #fff;
+        background: var(--card-bg);
         max-width: 700px;
         margin: 0 auto;
         padding: 40px 30px;
         border-radius: 20px;
         box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        transition: background 0.4s;
     }
     .hero { text-align: center; margin-bottom: 25px; }
-    .hero h1 { color: #764ba2; font-size: 32px; margin-bottom: 15px; }
-    .hero p { color: #555; font-size: 17px; margin-bottom: 25px; }
-    .nav-links { text-align: center; padding-top: 20px; border-top: 1px solid #eee; }
-    a { color: #667eea; text-decoration: none; margin: 0 8px; font-weight: bold; }
+    .hero h1 { color: var(--heading-color); font-size: 32px; margin-bottom: 15px; }
+    .hero p { color: var(--text-secondary); font-size: 17px; margin-bottom: 25px; }
+    .nav-links { text-align: center; padding-top: 20px; border-top: 1px solid var(--border-color); }
+    a { color: var(--link-color); text-decoration: none; margin: 0 8px; font-weight: bold; }
     a:hover { text-decoration: underline; }
     .btn {
         display: inline-block;
@@ -47,13 +69,16 @@ STYLE = """
     input, textarea {
         width: 100%;
         padding: 12px 15px;
-        border: 2px solid #e0e0e0;
+        border: 2px solid var(--input-border);
         border-radius: 10px;
         font-size: 16px;
         font-family: Tahoma, sans-serif;
         margin-bottom: 15px;
+        background: var(--card-bg);
+        color: var(--text-color);
+        transition: border-color 0.3s, background 0.4s, color 0.4s;
     }
-    input:focus, textarea:focus { outline: none; border-color: #764ba2; }
+    input:focus, textarea:focus { outline: none; border-color: var(--heading-color); }
     textarea { min-height: 150px; resize: vertical; }
     button {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -66,16 +91,58 @@ STYLE = """
         cursor: pointer;
     }
     button:hover { opacity: 0.9; }
-    hr { border: none; border-top: 1px solid #eee; margin: 20px 0; }
-    h2 { color: #764ba2; }
+    hr { border: none; border-top: 1px solid var(--border-color); margin: 20px 0; }
+    h2 { color: var(--heading-color); }
+    .theme-btn {
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: var(--card-bg);
+        border: 2px solid var(--heading-color);
+        color: var(--heading-color);
+        font-size: 22px;
+        cursor: pointer;
+        z-index: 999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        transition: transform 0.3s, background 0.4s;
+    }
+    .theme-btn:hover { transform: rotate(20deg) scale(1.1); }
     @media (max-width: 600px) {
         body { padding: 10px; }
         .box { padding: 25px 20px; border-radius: 15px; }
         .hero h1 { font-size: 24px; }
         .hero p { font-size: 15px; }
+        .theme-btn { top: 10px; left: 10px; width: 42px; height: 42px; font-size: 18px; }
     }
 </style>
+<script>
+    (function() {
+        var saved = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', saved);
+    })();
+    function toggleTheme() {
+        var current = document.documentElement.getAttribute('data-theme');
+        var next = current === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', next);
+        localStorage.setItem('theme', next);
+        var btn = document.getElementById('themeBtn');
+        if (btn) btn.textContent = next === 'dark' ? '☀️' : '🌙';
+    }
+    window.addEventListener('DOMContentLoaded', function() {
+        var current = document.documentElement.getAttribute('data-theme');
+        var btn = document.getElementById('themeBtn');
+        if (btn) btn.textContent = current === 'dark' ? '☀️' : '🌙';
+    });
+</script>
 """
+
+THEME_BTN = "<button class='theme-btn' id='themeBtn' onclick='toggleTheme()'>🌙</button>"
 
 
 def init_db():
@@ -139,7 +206,7 @@ def ping():
 
 @app.route("/")
 def home():
-    return STYLE + """
+    return STYLE + THEME_BTN + """
     <div class='box'>
         <div class='hero'>
             <h1>به سایت من خوش اومدی 👋</h1>
@@ -157,7 +224,7 @@ def home():
 @app.route("/blog")
 def blog():
     posts = get_all_posts()
-    html = STYLE + "<div class='box'><h1>وبلاگ من</h1><a href='/'>خانه</a> | <a href='/admin/login'>ورود ادمین</a><hr>"
+    html = STYLE + THEME_BTN + "<div class='box'><h1>وبلاگ من</h1><a href='/'>خانه</a> | <a href='/admin/login'>ورود ادمین</a><hr>"
     if not posts:
         html += "<p>هنوز پستی نیست.</p>"
     for p in posts:
@@ -170,8 +237,8 @@ def blog():
 def blog_post(pid):
     p = get_post(pid)
     if not p:
-        return STYLE + "<div class='box'><h1>پست پیدا نشد</h1><a href='/blog'>برگرد</a></div>", 404
-    return STYLE + "<div class='box'><h1>" + p[1] + "</h1><a href='/blog'>برگرد به وبلاگ</a><hr><p>" + p[2] + "</p></div>"
+        return STYLE + THEME_BTN + "<div class='box'><h1>پست پیدا نشد</h1><a href='/blog'>برگرد</a></div>", 404
+    return STYLE + THEME_BTN + "<div class='box'><h1>" + p[1] + "</h1><a href='/blog'>برگرد به وبلاگ</a><hr><p>" + p[2] + "</p></div>"
 
 
 @app.route("/admin/login", methods=["GET", "POST"])
@@ -180,8 +247,8 @@ def admin_login():
         if request.form.get("password", "") == ADMIN_PASSWORD:
             session["logged"] = True
             return redirect("/admin/posts")
-        return STYLE + "<div class='box'><h1>رمز اشتباهه</h1><a href='/admin/login'>دوباره تلاش کن</a></div>"
-    return STYLE + """
+        return STYLE + THEME_BTN + "<div class='box'><h1>رمز اشتباهه</h1><a href='/admin/login'>دوباره تلاش کن</a></div>"
+    return STYLE + THEME_BTN + """
     <div class='box'>
         <h1>ورود ادمین</h1>
         <form method='POST'>
@@ -204,7 +271,7 @@ def admin_posts():
     if not logged_in():
         return redirect("/admin/login")
     posts = get_all_posts()
-    html = STYLE + "<div class='box'><h1>مدیریت پست‌ها</h1><a href='/admin/posts/new'>پست جدید</a> | <a href='/admin/logout'>خروج</a><hr>"
+    html = STYLE + THEME_BTN + "<div class='box'><h1>مدیریت پست‌ها</h1><a href='/admin/posts/new'>پست جدید</a> | <a href='/admin/logout'>خروج</a><hr>"
     if not posts:
         html += "<p>هنوز پستی نیست.</p>"
     for p in posts:
@@ -223,7 +290,7 @@ def admin_new():
         if t and c:
             create_post(t, c)
             return redirect("/admin/posts")
-    return STYLE + """
+    return STYLE + THEME_BTN + """
     <div class='box'>
         <h1>پست جدید</h1>
         <form method='POST'>
@@ -249,7 +316,7 @@ def admin_edit(pid):
         if t and c:
             update_post(pid, t, c)
             return redirect("/admin/posts")
-    return STYLE + """
+    return STYLE + THEME_BTN + """
     <div class='box'>
         <h1>ویرایش پست</h1>
         <form method='POST'>
