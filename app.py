@@ -36,7 +36,6 @@ def send_email(subject, body):
         msg["Subject"] = subject
         msg["From"] = GMAIL_USER
         msg["To"] = NOTIFY_EMAIL
-
         server = smtplib.SMTP("smtp.gmail.com", 587)
         server.starttls()
         server.login(GMAIL_USER, GMAIL_APP_PASSWORD)
@@ -136,6 +135,47 @@ def render_page(title, content):
     return render_template("page.html", title=title, content=content)
 
 
+FAQ_ITEMS = [
+    ("شهریه چقدر است؟",
+     "شهریه بر اساس نوع اتاق (دو نفره یا چهار نفره) و مدت اقامت (ماهانه یا سالانه) متفاوت است. برای اطلاع از قیمت دقیق، لطفاً با ما تماس بگیرید یا فرم ثبت‌نام را پر کنید."),
+    ("ساعت ورود و خروج چگونه است؟",
+     "پذیرش دانش‌آموزان روزهای شنبه تا چهارشنبه از ساعت ۱۴ تا ۲۰ است. خروج در پایان هر ماه یا با هماهنگی قبلی امکان‌پذیر است."),
+    ("آیا وعده‌های غذایی شامل شهریه می‌شود؟",
+     "بله، سه وعده‌ی غذایی (صبحانه، ناهار، شام) به همراه میان‌وعده زیر نظر متخصص تغذیه ارائه می‌شود."),
+    ("اتاق‌ها چند نفره هستند؟",
+     "اتاق‌ها به دو صورت دو نفره و چهار نفره موجود هستند. هر اتاق دارای سرویس بهداشتی و کولر است."),
+    ("آیا اینترنت و فضای مطالعه وجود دارد؟",
+     "بله، اینترنت پرسرعت وای‌فای به همراه سالن‌های مطالعه‌ی مجهز و ساکت در اختیار دانش‌آموزان قرار می‌گیرد."),
+    ("امکانات ورزشی و تفریحی چیست؟",
+     "سالن ورزشی کوچک، زمین بازی و اتاق تلویزیون برای اوقات فراغت دانش‌آموزان در نظر گرفته شده است."),
+    ("اگر دانش‌آموز مریض شود چه می‌شود؟",
+     "در صورت بیماری، بلافاصله به والدین اطلاع داده می‌شود و در صورت نیاز به پزشک ارجاع داده خواهد شد. هزینه‌ی درمان بر عهده‌ی خانواده است."),
+    ("آیا امکان بازدید از مرکز وجود دارد؟",
+     "بله، والدین می‌توانند با هماهنگی قبلی از مرکز بازدید کنند و از نزدیک با فضا و امکانات آشنا شوند."),
+    ("چه مدارکی برای ثبت‌نام لازم است؟",
+     "کپی شناسنامه، کارت ملی والدین، دو قطعه عکس و آخرین کارنامه‌ی تحصیلی. برای ثبت‌نام آنلاین، فرم سایت را پر کنید."),
+    ("آیا امکان انصراف و بازگشت وجه وجود دارد؟",
+     "در صورت انصراف تا یک هفته پس از ثبت‌نام، شهریه به‌طور کامل بازگردانده می‌شود. پس از آن، بر اساس مدت استفاده محاسبه می‌شود."),
+]
+
+
+def build_faq_html():
+    html = "<h1>سوالات متداول</h1>"
+    html += "<p class='muted'>پاسخ سوالات رایج درباره‌ی مرکز مطالعه. اگر سوال دیگری دارید، با ما تماس بگیرید.</p>"
+    html += "<div style='margin-top:24px;'>"
+    for q, a in FAQ_ITEMS:
+        html += "<details style='border:1px solid var(--line);border-radius:10px;padding:14px 18px;margin-bottom:10px;background:var(--card);'>"
+        html += "<summary style='cursor:pointer;font-weight:600;color:var(--brass);list-style:none;'>" + q + "</summary>"
+        html += "<p style='margin-top:12px;color:var(--ink);line-height:2;'>" + a + "</p>"
+        html += "</details>"
+    html += "</div>"
+    html += "<div style='margin-top:30px;text-align:center;'>"
+    html += "<a href='/register' class='btn'>فرم ثبت‌نام</a> "
+    html += "<a href='/contact' class='btn ghost'>تماس با ما</a>"
+    html += "</div>"
+    return html
+
+
 @app.route("/ping")
 def ping():
     return jsonify({"ok": True})
@@ -144,6 +184,27 @@ def ping():
 @app.route("/")
 def home():
     return render_template("home.html")
+
+
+@app.route("/faq")
+def faq():
+    return render_page("سوالات متداول", build_faq_html())
+
+
+@app.route("/contact")
+def contact():
+    html = "<h1>تماس با ما</h1>"
+    html += "<p class='muted'>از راه‌های زیر می‌توانید با ما در ارتباط باشید.</p>"
+    html += "<div style='margin-top:24px;'>"
+    html += "<p>📞 تلفن: <a href='tel:+989931783620'>۰۹۹۳۱۷۸۳۶۲۰</a></p>"
+    html += "<p>✉️ ایمیل: <a href='mailto:cady1max1@gmail.com'>cady1max1@gmail.com</a></p>"
+    html += "<p>📍 آدرس: [آدرس خود را اینجا بنویسید]</p>"
+    html += "<p>🕐 ساعت پاسخگویی: شنبه تا پنجشنبه، ۹ صبح تا ۶ عصر</p>"
+    html += "</div>"
+    html += "<div style='margin-top:30px;text-align:center;'>"
+    html += "<a href='/register' class='btn'>فرم ثبت‌نام</a>"
+    html += "</div>"
+    return render_page("تماس با ما", html)
 
 
 @app.route("/register", methods=["GET", "POST"])
