@@ -1,11 +1,15 @@
 import os
 import sqlite3
+import urllib.request
+import urllib.parse
 from flask import Flask, request, redirect, session, jsonify, render_template
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "secret123")
 
 ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "admin123")
+BOT_TOKEN = os.environ.get("BOT_TOKEN", "")
+ADMIN_ID = os.environ.get("ADMIN_ID", "")
 DB_NAME = "site_data.db"
 
 
@@ -13,8 +17,22 @@ def init_db():
     conn = sqlite3.connect(DB_NAME)
     c = conn.cursor()
     c.execute("CREATE TABLE IF NOT EXISTS posts (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, content TEXT, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)")
+    c.execute("CREATE TABLE IF NOT EXISTS registrations (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, age TEXT, grade TEXT, phone TEXT, notes TEXT, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)")
     conn.commit()
     conn.close()
+
+
+def send_to_telegram(text):
+    if not BOT_TOKEN or not ADMIN_ID:
+        return False
+    url = "https://api.telegram.org/bot" + BOT_TOKEN + "/sendMessage"
+    data = urllib.parse.urlencode({"chat_id": ADMIN_ID, "text": text}).encode()
+    try:
+        urllib.request.urlopen(url, data=data)
+        return True
+    except Exception as e:
+        print("Telegram error: " + str(e))
+        return False
 
 
 def get_all_posts():
@@ -59,6 +77,31 @@ def delete_post(pid):
     conn.close()
 
 
+def save_registration(name, age, grade, phone, notes):
+    conn = sqlite3.connect(DB_NAME)
+    c = conn.cursor()
+    c.execute("INSERT INTO registrations (name, age, grade, phone, notes) VALUES (?, ?, ?, ?, ?)", (name, age, grade, phone, notes))
+    conn.commit()
+    conn.close()
+
+
+def get_all_registrations():
+    conn = sqlite3.connect(DB_NAME)
+    c = conn.cursor()
+    c.execute("SELECT id, name, age, grade, phone, notes, created_at FROM registrations ORDER BY id DESC")
+    rows = c.fetchall()
+    conn.close()
+    return rows
+
+
+def delete_registration(rid):
+    conn = sqlite3.connect(DB_NAME)
+    c = conn.cursor()
+    c.execute("DELETE FROM registrations WHERE id=?", (rid,))
+    conn.commit()
+    conn.close()
+
+
 def logged_in():
     return session.get("logged", False)
 
@@ -75,6 +118,49 @@ def ping():
 @app.route("/")
 def home():
     return render_template("home.html")
+
+
+@app.route("/register", methods=["GET", "POST"])
+def register():
+    if request.method == "POST":
+        name = request.form.get("name", "").strip()
+        age = request.form.get("age", "").strip()
+        grade = request.form.get("grade", "").strip()
+        phone = request.form.get("phone", "").strip()
+        notes = request.form.get("notes", "").strip()
+
+        if not name or not age or not grade or not phone:
+            return render_page("خطا", "<h1>خطا</h1><p>لطفاً فیلدهای ضروری را پر کنید.</p><p><a href='/register'>برگرد به فرم</a></p>")
+
+        save_registration(name, age, grade, phone, notes)
+
+        msg = "ثبت‌نام جدید در سایت\n\n"
+        msg += "نام دانش‌آموز: " + name + "\n"
+        msg += "سن: " + age + "\n"
+        msg += "پایه: " + grade + "\n"
+        msg += "تلفن والدین: " + phone + "\n"
+        if notes:
+            msg += "توضیحات: " + notes
+        send_to_telegram(msg)
+
+        return render_page("ثبت‌نام موفق", "<h1>ثبت‌نام انجام شد ✅</h1><p>ممنون " + name + " عزیز! به زودی با شما تماس می‌گیریم.</p><p><a href='/'>برگرد به خانه</a></p>")
+
+    form = "<h1>فرم ثبت‌نام</h1>"
+    form += "<p class='muted'>لطفاً اطلاعات زیر را کامل کنید تا با شما تماس بگیریم.</p>"
+    form += "<form method='POST'>"
+    form += "<label>نام و نام خانوادگی دانش‌آموز *</label>"
+    form += "<input name='name' required>"
+    form += "<label>سن *</label>"
+    form += "<input name='age' type='number' min='8' max='25' required>"
+    form += "<label>پایه‌ی تحصیلی *</label>"
+    form += "<input name='grade' placeholder='مثلاً: دهم' required>"
+    form += "<label>شماره تلفن والدین *</label>"
+    form += "<input name='phone' type='tel' required>"
+    form += "<label>توضیحات (اختیاری)</label>"
+    form += "<textarea name='notes' placeholder='هر توضیحی دارید اینجا بنویسید'></textarea>"
+    form += "<button type='submit' class='btn'>ارسال فرم</button>"
+    form += "</form>"
+    return render_page("ثبت‌نام", form)
 
 
 @app.route("/blog")
@@ -119,12 +205,39 @@ def admin_posts():
     if not logged_in():
         return redirect("/admin/login")
     posts = get_all_posts()
-    html = "<h1>مدیریت پست‌ها</h1><p><a href='/admin/posts/new'>➕ پست جدید</a> | <a href='/admin/logout'>خروج</a></p><hr>"
+    html = "<h1>مدیریت پست‌ها</h1><p><a href='/admin/posts/new'>➕ پست جدید</a> | <a href='/admin/registrations'>📋 ثبت‌نام‌ها</a> | <a href='/admin/logout'>خروج</a></p><hr>"
     if not posts:
         html += "<p class='muted'>هنوز پستی نیست.</p>"
     for p in posts:
         html += "<div class='post'><b>" + p[1] + "</b> | <a href='/admin/posts/" + str(p[0]) + "/edit'>ویرایش</a></div>"
     return render_page("مدیریت", html)
+
+
+@app.route("/admin/registrations")
+def admin_registrations():
+    if not logged_in():
+        return redirect("/admin/login")
+    regs = get_all_registrations()
+    html = "<h1>ثبت‌نام‌های دریافتی</h1><p><a href='/admin/posts'>← برگرد به مدیریت</a></p><hr>"
+    if not regs:
+        html += "<p class='muted'>هنوز ثبت‌نامی نیومده.</p>"
+    for r in regs:
+        html += "<div class='post'><b>" + r[1] + "</b> (سن: " + r[2] + "، پایه: " + r[3] + ")<br>"
+        html += "<span class='muted'>📞 " + r[4] + "</span><br>"
+        if r[5]:
+            html += "<span class='muted'>" + r[5] + "</span><br>"
+        html += "<span class='muted'>تاریخ: " + str(r[6]) + "</span>"
+        html += "<form method='POST' action='/admin/registrations/" + str(r[0]) + "/delete' style='margin-top:8px;'><button type='submit' class='btn' style='padding:5px 15px;font-size:.85rem;'>حذف</button></form>"
+        html += "</div>"
+    return render_page("ثبت‌نام‌ها", html)
+
+
+@app.route("/admin/registrations/<int:rid>/delete", methods=["POST"])
+def admin_delete_registration(rid):
+    if not logged_in():
+        return redirect("/admin/login")
+    delete_registration(rid)
+    return redirect("/admin/registrations")
 
 
 @app.route("/admin/posts/new", methods=["GET", "POST"])
