@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>مرکز مطالعه و پانسیون پسرانه</title>
+<meta name="description" content="فضای آرام برای درس خواندن پسران؛ برنامه‌ی روزانه، ثبت‌نام و تماس.">
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink: #1c2740;
+  --paper: #faf8f3;
+  --card: #fff;
+  --brass: #b8801f;
+  --brass-soft: #f3e6c9;
+  --mute: #5d6578;
+  --line: #e4dfd2;
+  --r: 10px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ink: #e9ecf5;
+    --paper: #121826;
+    --card: #1a2236;
+    --brass: #e0a840;
+    --brass-soft: #2c2a22;
+    --mute: #a3abc0;
+    --line: #2b344c;
+  }
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: Vazirmatn, Tahoma, sans-serif;
+  background: var(--paper);
+  color: var(--ink);
+  line-height: 1.9;
+}
+a { color: inherit; }
+.wrap {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+header {
+  border-bottom: 1px solid var(--line);
+  position: sticky;
+  top: 0;
+  background: var(--paper);
+  z-index: 5;
+}
+header .wrap {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 60px;
+}
+.logo { font-weight: 800; text-decoration: none; }
+nav { display: flex; gap: 18px; font-size: .95rem; }
+nav a { text-decoration: none; color: var(--mute); }
+nav a:hover { color: var(--ink); }
+@media (max-width: 600px) {
+  nav a:not(.cta-s) { display: none; }
+}
+.cta-s {
+  background: var(--brass);
+  color: #fff !important;
+  padding: 2px 14px;
+  border-radius: var(--r);
+}
+.hero {
+  padding: 56px 0 40px;
+  display: grid;
+  gap: 32px;
+  grid-template-columns: 1.1fr .9fr;
+  align-items: center;
+}
+@media (max-width: 760px) {
+  .hero { grid-template-columns: 1fr; padding-top: 32px; }
+}
+h1 {
+  font-size: clamp(1.8rem, 5vw, 2.8rem);
+  line-height: 1.5;
+  font-weight: 800;
+}
+.lead {
+  color: var(--mute);
+  margin: 14px 0 24px;
+  max-width: 46ch;
+}
+.btn {
+  display: inline-block;
+  background: var(--brass);
+  color: #fff;
+  padding: 10px 26px;
+  border-radius: var(--r);
+  text-decoration: none;
+  font-weight: 600;
+  border: 0;
+  font-family: inherit;
+  cursor: pointer;
+}
+.btn.ghost {
+  background: none;
+  color: var(--ink);
+  border: 1px solid var(--line);
+  margin-inline-start: 8px;
+}
+.btn:focus-visible, a:focus-visible {
+  outline: 3px solid var(--brass);
+  outline-offset: 2px;
+}
+.sched {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  padding: 20px 22px;
+}
+.sched h2 { font-size: 1.05rem; margin-bottom: 8px; }
+.sched ul { list-style: none; }
+.sched li {
+  display: flex;
+  gap: 14px;
+  padding: 7px 0;
+  border-top: 1px dashed var(--line);
+}
+.sched li:first-of-type { border-top: 0; }
+.sched time {
+  min-width: 84px;
+  color: var(--brass);
+  font-weight: 600;
+}
+.features {
+  padding: 50px 0;
+  border-top: 1px solid var(--line);
+}
+.features h2 {
+  font-size: 1.5rem;
+  margin-bottom: 30px;
+  text-align: center;
+}
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 22px;
+}
+.feature {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  padding: 26px 22px;
+  text-align: center;
+}
+.feature .ico { font-size: 40px; display: block; margin-bottom: 12px; }
+.feature h3 { color: var(--brass); margin-bottom: 8px; font-size: 1.05rem; }
+.feature p { color: var(--mute); font-size: .92rem; }
+.cta-band {
+  background: var(--brass-soft);
+  padding: 40px 20px;
+  text-align: center;
+  margin-top: 40px;
+}
+.cta-band h2 { margin-bottom: 12px; }
+.cta-band p { color: var(--mute); margin-bottom: 22px; }
+footer {
+  text-align: center;
+  padding: 30px 20px;
+  color: var(--mute);
+  font-size: .85rem;
+  border-top: 1px solid var(--line);
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <a class="logo" href="/">مرکز مطالعه</a>
+    <nav>
+      <a href="#features">امکانات</a>
+      <a href="#schedule">برنامه</a>
+      <a href="#contact">تماس</a>
+      <a href="/blog">وبلاگ</a>
+      <a href="#contact" class="cta-s">ثبت‌نام</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="hero">
+    <div>
+      <h1>فضایی آرام برای درس خواندن پسران</h1>
+      <p class="lead">
+        مرکز مطالعه‌ی ما با محیطی ساکت، امکانات کامل و برنامه‌ی روزانه،
+        به دانش‌آموزان پسر کمک می‌کند تا با تمرکز بیشتر درس بخوانند.
+      </p>
+      <a href="#contact" class="btn">ثبت‌نام کن</a>
+      <a href="#schedule" class="btn ghost">برنامه‌ی روزانه</a>
+    </div>
+    <div class="sched" id="schedule">
+      <h2>برنامه‌ی روزانه</h2>
+      <ul>
+        <li><time>۷:۰۰</time> بیداری و صبحانه</li>
+        <li><time>۸:۰۰</time> شروع مطالعه</li>
+        <li><time>۱۲:۳۰</time> ناهار و استراحت</li>
+        <li><time>۱۵:۰۰</time> ادامه‌ی مطالعه</li>
+        <li><time>۱۹:۰۰</time> شام و ورزش</li>
+        <li><time>۲۱:۰۰</time> مطالعه‌ی شبانه</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="features" id="features">
+    <h2>چرا ما را انتخاب کنید؟</h2>
+    <div class="feature-grid">
+      <div class="feature">
+        <span class="ico">📚</span>
+        <h3>محیط ساکت</h3>
+        <p>سالن‌های مطالعه‌ی مجزا با تهویه‌ی مناسب و نور کافی.</p>
+      </div>
+      <div class="feature">
+        <span class="ico">👨‍🏫</span>
+        <h3>مشاور تحصیلی</h3>
+        <p>راهنمایی روزانه برای برنامه‌ریزی و پیشرفت درسی.</p>
+      </div>
+      <div class="feature">
+        <span class="ico">🍽️</span>
+        <h3>غذای خانگی</h3>
+        <p>سه وعده‌ی غذای سالم و خانگی زیر نظر متخصص تغذیه.</p>
+      </div>
+      <div class="feature">
+        <span class="ico">🛏️</span>
+        <h3>اتاق‌های راحت</h3>
+        <p>اتاق‌های دو نفره با سرویس بهداشتی اختصاصی.</p>
+      </div>
+      <div class="feature">
+        <span class="ico">🔒</span>
+        <h3>امنیت کامل</h3>
+        <p>دوربین‌های مدار بسته و نگهبان ۲۴ ساعته.</p>
+      </div>
+      <div class="feature">
+        <span class="ico">📈</span>
+        <h3>پیشرفت تضمینی</h3>
+        <p>گزارش هفتگی از وضعیت درسی به والدین.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta-band" id="contact">
+    <h2>آماده‌ی شروع هستی؟</h2>
+    <p>همین حالا با ما تماس بگیر تا از جزئیات و شرایط ثبت‌نام باخبر بشی.</p>
+    <a href="tel:+989123456789" class="btn">تماس با ما</a>
+  </section>
+</main>
+
+<footer>
+  <div>© مرکز مطالعه و پانسیون پسرانه — تمامی حقوق محفوظ است.</div>
+  <div style="margin-top:8px;">
+    <a href="/blog" style="color:var(--mute); margin:0 8px;">وبلاگ</a>
+    <a href="/admin/login" style="color:var(--mute); margin:0 8px;">ورود مدیریت</a>
+  </div>
+</footer>
+
+</body>
+</html>
