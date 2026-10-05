@@ -17,10 +17,10 @@ GMAIL_APP_PASSWORD = os.environ.get("GMAIL_APP_PASSWORD", "")
 NOTIFY_EMAIL = os.environ.get("NOTIFY_EMAIL", "")
 DB_NAME = "site_data.db"
 
-# آدرس مرکز — این رو با آدرس واقعی عوض کن
-CENTER_ADDRESS = "تهران، خیابان انقلاب، خیابان دانشگاه، پلاک ۱۲۳"
-CENTER_LAT = "35.7000"
-CENTER_LNG = "51.4000"
+# ============ آدرس مرکز ============
+CENTER_ADDRESS = "کرمان، خیابان خواجو"
+CENTER_LAT = "30.2802837"
+CENTER_LNG = "57.0492426"
 
 
 def init_db():
@@ -169,11 +169,13 @@ def build_faq_html():
 
 
 def build_location_html():
-    # نقشه با OpenStreetMap (بدون API Key)
+    lat = float(CENTER_LAT)
+    lng = float(CENTER_LNG)
+
     osm_embed = (
         "https://www.openstreetmap.org/export/embed.html?"
-        "bbox=" + str(float(CENTER_LNG) - 0.008) + "," + str(float(CENTER_LAT) - 0.005) + "," +
-        str(float(CENTER_LNG) + 0.008) + "," + str(float(CENTER_LAT) + 0.005) +
+        "bbox=" + str(lng - 0.008) + "," + str(lat - 0.005) + "," +
+        str(lng + 0.008) + "," + str(lat + 0.005) +
         "&layer=mapnik&marker=" + CENTER_LAT + "," + CENTER_LNG
     )
 
@@ -201,9 +203,9 @@ def build_location_html():
     html += "<div style='margin-top:20px;padding:20px;border:1px solid var(--line);'>"
     html += "<p style='font-weight:700;color:var(--brass);margin-bottom:12px;'>🚇 دسترسی:</p>"
     html += "<ul style='padding-right:20px;line-height:2.2;'>"
-    html += "<li>نزدیک‌ترین ایستگاه مترو: [نام ایستگاه] — ۵ دقیقه پیاده</li>"
-    html += "<li>ایستگاه اتوبوس: [نام ایستگاه] — ۲ دقیقه پیاده</li>"
-    html += "<li>پارکینگ: موجود در محل</li>"
+    html += "<li>نزدیک‌ترین ایستگاه مترو: [نام ایستگاه] — [چند] دقیقه پیاده</li>"
+    html += "<li>ایستگاه اتوبوس: [نام ایستگاه] — [چند] دقیقه پیاده</li>"
+    html += "<li>پارکینگ: [وضعیت پارکینگ]</li>"
     html += "</ul>"
     html += "</div>"
 
