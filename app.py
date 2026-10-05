@@ -34,6 +34,25 @@ STYLE = """
         --shadow: rgba(0,0,0,0.4);
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(30px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes slideDown {
+        from { opacity: 0; transform: translateY(-20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes float {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-8px); }
+    }
+    @keyframes gradientShift {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+
     body {
         font-family: Tahoma, sans-serif;
         background: var(--bg);
@@ -55,20 +74,35 @@ STYLE = """
         justify-content: space-between;
         align-items: center;
         transition: background 0.4s, border-color 0.4s;
+        animation: slideDown 0.5s ease;
     }
     .logo {
         font-size: 20px;
         font-weight: bold;
         color: var(--heading);
+        transition: transform 0.3s;
     }
+    .logo:hover { transform: scale(1.08); }
     .topbar nav a {
         color: var(--text);
         text-decoration: none;
         margin: 0 10px;
         font-size: 15px;
+        position: relative;
         transition: color 0.3s;
     }
+    .topbar nav a::after {
+        content: '';
+        position: absolute;
+        bottom: -5px;
+        right: 0;
+        width: 0;
+        height: 2px;
+        background: var(--accent);
+        transition: width 0.3s;
+    }
     .topbar nav a:hover { color: var(--accent); }
+    .topbar nav a:hover::after { width: 100%; }
     .theme-btn {
         width: 42px;
         height: 42px;
@@ -87,9 +121,11 @@ STYLE = """
 
     /* ---------- هیرو ---------- */
     .hero {
-        padding: 80px 25px 60px;
+        padding: 90px 25px 70px;
         text-align: center;
         background: var(--bg-gradient);
+        background-size: 200% 200%;
+        animation: gradientShift 12s ease infinite;
         color: #fff;
     }
     .hero h1 {
@@ -97,12 +133,14 @@ STYLE = """
         margin-bottom: 20px;
         line-height: 1.4;
         color: #fff;
+        animation: fadeInUp 0.8s ease;
     }
     .hero p {
         font-size: 18px;
         max-width: 600px;
         margin: 0 auto 35px;
         opacity: 0.95;
+        animation: fadeInUp 1s ease;
     }
     .hero .btn {
         display: inline-block;
@@ -114,15 +152,16 @@ STYLE = """
         font-weight: bold;
         text-decoration: none;
         transition: transform 0.3s, box-shadow 0.3s;
+        animation: fadeInUp 1.2s ease;
     }
     .hero .btn:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 15px 30px rgba(0,0,0,0.25);
+        transform: translateY(-4px) scale(1.05);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.3);
     }
 
     /* ---------- کارت‌ها ---------- */
     .section {
-        padding: 60px 25px;
+        padding: 70px 25px;
         max-width: 1000px;
         margin: 0 auto;
     }
@@ -130,7 +169,8 @@ STYLE = """
         text-align: center;
         color: var(--heading);
         font-size: 28px;
-        margin-bottom: 40px;
+        margin-bottom: 45px;
+        animation: fadeInUp 0.6s ease;
     }
     .cards {
         display: grid;
@@ -143,17 +183,25 @@ STYLE = """
         border-radius: 20px;
         border: 1px solid var(--border);
         text-align: center;
-        transition: transform 0.3s, box-shadow 0.3s;
+        transition: transform 0.4s, box-shadow 0.4s, border-color 0.4s;
+        animation: fadeInUp 0.8s ease backwards;
     }
+    .card:nth-child(1) { animation-delay: 0.1s; }
+    .card:nth-child(2) { animation-delay: 0.25s; }
+    .card:nth-child(3) { animation-delay: 0.4s; }
     .card:hover {
-        transform: translateY(-8px);
-        box-shadow: 0 15px 35px var(--shadow);
+        transform: translateY(-10px);
+        box-shadow: 0 20px 40px var(--shadow);
+        border-color: var(--accent);
     }
     .card .icon {
         font-size: 50px;
         margin-bottom: 15px;
         display: inline-block;
+        animation: float 3s ease-in-out infinite;
     }
+    .card:nth-child(2) .icon { animation-delay: 0.5s; }
+    .card:nth-child(3) .icon { animation-delay: 1s; }
     .card h3 {
         color: var(--heading);
         font-size: 20px;
@@ -181,13 +229,8 @@ STYLE = """
         opacity: 0.7;
         transition: color 0.3s, opacity 0.3s;
     }
-    footer a:hover {
-        color: var(--accent);
-        opacity: 1;
-    }
-    footer .copy {
-        margin-bottom: 15px;
-    }
+    footer a:hover { color: var(--accent); opacity: 1; }
+    footer .copy { margin-bottom: 15px; }
 
     /* ---------- صفحه‌های داخلی ---------- */
     .box {
@@ -199,11 +242,12 @@ STYLE = """
         box-shadow: 0 10px 30px var(--shadow);
         border: 1px solid var(--border);
         transition: background 0.4s, border-color 0.4s;
+        animation: fadeInUp 0.7s ease;
     }
     .box h1 { color: var(--heading); margin-bottom: 20px; }
     .box h2 { color: var(--heading); margin: 20px 0 10px; }
     .box p { color: var(--text); margin-bottom: 15px; }
-    a { color: var(--accent); text-decoration: none; }
+    a { color: var(--accent); text-decoration: none; transition: opacity 0.3s; }
     a:hover { text-decoration: underline; }
     input, textarea {
         width: 100%;
@@ -215,11 +259,12 @@ STYLE = """
         margin-bottom: 15px;
         background: var(--card-bg);
         color: var(--text);
-        transition: border-color 0.3s;
+        transition: border-color 0.3s, box-shadow 0.3s;
     }
     input:focus, textarea:focus {
         outline: none;
         border-color: var(--heading);
+        box-shadow: 0 0 0 4px rgba(118, 75, 162, 0.12);
     }
     textarea { min-height: 150px; resize: vertical; }
     button.btn-primary {
@@ -231,23 +276,29 @@ STYLE = """
         font-size: 16px;
         font-family: Tahoma, sans-serif;
         cursor: pointer;
-        transition: transform 0.3s;
+        transition: transform 0.3s, box-shadow 0.3s;
     }
-    button.btn-primary:hover { transform: translateY(-2px); }
+    button.btn-primary:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 25px rgba(118, 75, 162, 0.35);
+    }
     hr { border: none; border-top: 1px solid var(--border); margin: 25px 0; }
     .post-item {
         padding: 20px 0;
         border-bottom: 1px solid var(--border);
+        transition: padding-right 0.3s;
+        animation: fadeInUp 0.6s ease backwards;
     }
+    .post-item:hover { padding-right: 10px; }
     .post-item:last-child { border-bottom: none; }
     .post-item h3 { color: var(--heading); margin-bottom: 8px; font-size: 20px; }
     .post-item .preview { color: var(--text-light); font-size: 15px; }
 
     @media (max-width: 600px) {
-        .hero { padding: 50px 20px 40px; }
+        .hero { padding: 60px 20px 45px; }
         .hero h1 { font-size: 28px; }
         .hero p { font-size: 15px; }
-        .section { padding: 40px 20px; }
+        .section { padding: 45px 20px; }
         .section-title { font-size: 22px; }
         .topbar { padding: 12px 15px; }
         .topbar nav a { margin: 0 5px; font-size: 13px; }
@@ -400,9 +451,9 @@ def blog():
     html = STYLE + topbar() + "<div class='box'><h1>وبلاگ من</h1><p>اینجا یادداشت‌هام رو می‌نویسم.</p><hr>"
     if not posts:
         html += "<p>هنوز پستی نوشته نشده. به زودی...</p>"
-    for p in posts:
+    for i, p in enumerate(posts):
         html += (
-            "<div class='post-item'>"
+            "<div class='post-item' style='animation-delay:" + str(i * 0.1) + "s;'>"
             "<h3><a href='/blog/" + str(p[0]) + "'>" + p[1] + "</a></h3>"
             "<div class='preview'>" + p[2][:150] + "...</div>"
             "</div>"
