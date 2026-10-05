@@ -17,6 +17,11 @@ GMAIL_APP_PASSWORD = os.environ.get("GMAIL_APP_PASSWORD", "")
 NOTIFY_EMAIL = os.environ.get("NOTIFY_EMAIL", "")
 DB_NAME = "site_data.db"
 
+# آدرس مرکز — این رو با آدرس واقعی عوض کن
+CENTER_ADDRESS = "تهران، خیابان انقلاب، خیابان دانشگاه، پلاک ۱۲۳"
+CENTER_LAT = "35.7000"
+CENTER_LNG = "51.4000"
+
 
 def init_db():
     conn = sqlite3.connect(DB_NAME)
@@ -29,7 +34,6 @@ def init_db():
 
 def send_email(subject, body):
     if not GMAIL_USER or not GMAIL_APP_PASSWORD or not NOTIFY_EMAIL:
-        print("Email config missing")
         return False
     try:
         msg = MIMEText(body, "plain", "utf-8")
@@ -136,41 +140,75 @@ def render_page(title, content):
 
 
 FAQ_ITEMS = [
-    ("شهریه چقدر است؟",
-     "شهریه بر اساس نوع اتاق (دو نفره یا چهار نفره) و مدت اقامت (ماهانه یا سالانه) متفاوت است. برای اطلاع از قیمت دقیق، لطفاً با ما تماس بگیرید یا فرم ثبت‌نام را پر کنید."),
-    ("ساعت ورود و خروج چگونه است؟",
-     "پذیرش دانش‌آموزان روزهای شنبه تا چهارشنبه از ساعت ۱۴ تا ۲۰ است. خروج در پایان هر ماه یا با هماهنگی قبلی امکان‌پذیر است."),
-    ("آیا وعده‌های غذایی شامل شهریه می‌شود؟",
-     "بله، سه وعده‌ی غذایی (صبحانه، ناهار، شام) به همراه میان‌وعده زیر نظر متخصص تغذیه ارائه می‌شود."),
-    ("اتاق‌ها چند نفره هستند؟",
-     "اتاق‌ها به دو صورت دو نفره و چهار نفره موجود هستند. هر اتاق دارای سرویس بهداشتی و کولر است."),
-    ("آیا اینترنت و فضای مطالعه وجود دارد؟",
-     "بله، اینترنت پرسرعت وای‌فای به همراه سالن‌های مطالعه‌ی مجهز و ساکت در اختیار دانش‌آموزان قرار می‌گیرد."),
-    ("امکانات ورزشی و تفریحی چیست؟",
-     "سالن ورزشی کوچک، زمین بازی و اتاق تلویزیون برای اوقات فراغت دانش‌آموزان در نظر گرفته شده است."),
-    ("اگر دانش‌آموز مریض شود چه می‌شود؟",
-     "در صورت بیماری، بلافاصله به والدین اطلاع داده می‌شود و در صورت نیاز به پزشک ارجاع داده خواهد شد. هزینه‌ی درمان بر عهده‌ی خانواده است."),
-    ("آیا امکان بازدید از مرکز وجود دارد؟",
-     "بله، والدین می‌توانند با هماهنگی قبلی از مرکز بازدید کنند و از نزدیک با فضا و امکانات آشنا شوند."),
-    ("چه مدارکی برای ثبت‌نام لازم است؟",
-     "کپی شناسنامه، کارت ملی والدین، دو قطعه عکس و آخرین کارنامه‌ی تحصیلی. برای ثبت‌نام آنلاین، فرم سایت را پر کنید."),
-    ("آیا امکان انصراف و بازگشت وجه وجود دارد؟",
-     "در صورت انصراف تا یک هفته پس از ثبت‌نام، شهریه به‌طور کامل بازگردانده می‌شود. پس از آن، بر اساس مدت استفاده محاسبه می‌شود."),
+    ("شهریه چقدر است؟", "شهریه بر اساس نوع اتاق و مدت اقامت متفاوت است. برای اطلاع از قیمت دقیق، با ما تماس بگیرید یا فرم ثبت‌نام را پر کنید."),
+    ("ساعت ورود و خروج چگونه است؟", "پذیرش دانش‌آموزان روزهای شنبه تا چهارشنبه از ساعت ۱۴ تا ۲۰ است."),
+    ("آیا وعده‌های غذایی شامل شهریه می‌شود؟", "بله، سه وعده‌ی غذایی به همراه میان‌وعده زیر نظر متخصص تغذیه ارائه می‌شود."),
+    ("اتاق‌ها چند نفره هستند؟", "اتاق‌ها به دو صورت دو نفره و چهار نفره موجود هستند."),
+    ("آیا اینترنت و فضای مطالعه وجود دارد؟", "بله، اینترنت پرسرعت و سالن‌های مطالعه‌ی مجهز در اختیار دانش‌آموزان قرار می‌گیرد."),
+    ("اگر دانش‌آموز مریض شود چه می‌شود؟", "بلافاصله به والدین اطلاع داده می‌شود و در صورت نیاز به پزشک ارجاع داده خواهد شد."),
+    ("آیا امکان بازدید از مرکز وجود دارد؟", "بله، والدین می‌توانند با هماهنگی قبلی از مرکز بازدید کنند."),
+    ("چه مدارکی برای ثبت‌نام لازم است؟", "کپی شناسنامه، کارت ملی والدین، دو قطعه عکس و آخرین کارنامه‌ی تحصیلی."),
 ]
 
 
 def build_faq_html():
     html = "<h1>سوالات متداول</h1>"
-    html += "<p class='muted'>پاسخ سوالات رایج درباره‌ی مرکز مطالعه. اگر سوال دیگری دارید، با ما تماس بگیرید.</p>"
+    html += "<p class='muted'>پاسخ سوالات رایج درباره‌ی مرکز مطالعه.</p>"
     html += "<div style='margin-top:24px;'>"
     for q, a in FAQ_ITEMS:
-        html += "<details style='border:1px solid var(--line);border-radius:10px;padding:14px 18px;margin-bottom:10px;background:var(--card);'>"
-        html += "<summary style='cursor:pointer;font-weight:600;color:var(--brass);list-style:none;'>" + q + "</summary>"
-        html += "<p style='margin-top:12px;color:var(--ink);line-height:2;'>" + a + "</p>"
+        html += "<details style='border:1px solid var(--line);padding:14px 18px;margin-bottom:8px;background:var(--card);'>"
+        html += "<summary style='cursor:pointer;font-weight:700;color:var(--brass);list-style:none;'>" + q + "</summary>"
+        html += "<p style='margin-top:12px;line-height:2;'>" + a + "</p>"
         html += "</details>"
     html += "</div>"
     html += "<div style='margin-top:30px;text-align:center;'>"
-    html += "<a href='/register' class='btn'>فرم ثبت‌نام</a> "
+    html += "<a href='/register' class='btn'>ثبت‌نام</a> "
+    html += "<a href='/location' class='btn ghost'>آدرس ما</a>"
+    html += "</div>"
+    return html
+
+
+def build_location_html():
+    # نقشه با OpenStreetMap (بدون API Key)
+    osm_embed = (
+        "https://www.openstreetmap.org/export/embed.html?"
+        "bbox=" + str(float(CENTER_LNG) - 0.008) + "," + str(float(CENTER_LAT) - 0.005) + "," +
+        str(float(CENTER_LNG) + 0.008) + "," + str(float(CENTER_LAT) + 0.005) +
+        "&layer=mapnik&marker=" + CENTER_LAT + "," + CENTER_LNG
+    )
+
+    neshan_url = "https://neshan.org/maps/@" + CENTER_LAT + "," + CENTER_LNG + ",16z"
+    balad_url = "https://balad.ir/location?latitude=" + CENTER_LAT + "&longitude=" + CENTER_LNG + "&zoom=16"
+
+    html = "<h1>آدرس و لوکیشن</h1>"
+    html += "<p class='muted'>برای بازدید حضوری، از آدرس زیر استفاده کنید.</p>"
+
+    html += "<div style='margin-top:24px;border:1px solid var(--line);background:var(--card);'>"
+    html += "<iframe src='" + osm_embed + "' style='width:100%;height:380px;border:0;display:block;' loading='lazy'></iframe>"
+    html += "</div>"
+
+    html += "<div style='margin-top:20px;padding:20px;border:1px solid var(--line);background:var(--cream);'>"
+    html += "<p style='font-weight:700;color:var(--brass);margin-bottom:10px;'>📍 آدرس:</p>"
+    html += "<p style='margin-bottom:16px;'>" + CENTER_ADDRESS + "</p>"
+
+    html += "<p style='font-weight:700;color:var(--brass);margin-bottom:10px;'>🧭 مسیریابی با:</p>"
+    html += "<div style='display:flex;gap:8px;flex-wrap:wrap;'>"
+    html += "<a href='" + neshan_url + "' target='_blank' class='btn'>نشان</a>"
+    html += "<a href='" + balad_url + "' target='_blank' class='btn ghost'>بلد</a>"
+    html += "</div>"
+    html += "</div>"
+
+    html += "<div style='margin-top:20px;padding:20px;border:1px solid var(--line);'>"
+    html += "<p style='font-weight:700;color:var(--brass);margin-bottom:12px;'>🚇 دسترسی:</p>"
+    html += "<ul style='padding-right:20px;line-height:2.2;'>"
+    html += "<li>نزدیک‌ترین ایستگاه مترو: [نام ایستگاه] — ۵ دقیقه پیاده</li>"
+    html += "<li>ایستگاه اتوبوس: [نام ایستگاه] — ۲ دقیقه پیاده</li>"
+    html += "<li>پارکینگ: موجود در محل</li>"
+    html += "</ul>"
+    html += "</div>"
+
+    html += "<div style='margin-top:30px;text-align:center;'>"
+    html += "<a href='/register' class='btn'>ثبت‌نام</a> "
     html += "<a href='/contact' class='btn ghost'>تماس با ما</a>"
     html += "</div>"
     return html
@@ -191,18 +229,24 @@ def faq():
     return render_page("سوالات متداول", build_faq_html())
 
 
+@app.route("/location")
+def location():
+    return render_page("آدرس و لوکیشن", build_location_html())
+
+
 @app.route("/contact")
 def contact():
     html = "<h1>تماس با ما</h1>"
-    html += "<p class='muted'>از راه‌های زیر می‌توانید با ما در ارتباط باشید.</p>"
-    html += "<div style='margin-top:24px;'>"
+    html += "<p class='muted'>از راه‌های زیر با ما در ارتباط باشید.</p>"
+    html += "<div style='margin-top:24px;line-height:2.4;'>"
     html += "<p>📞 تلفن: <a href='tel:+989931783620'>۰۹۹۳۱۷۸۳۶۲۰</a></p>"
     html += "<p>✉️ ایمیل: <a href='mailto:cady1max1@gmail.com'>cady1max1@gmail.com</a></p>"
-    html += "<p>📍 آدرس: [آدرس خود را اینجا بنویسید]</p>"
-    html += "<p>🕐 ساعت پاسخگویی: شنبه تا پنجشنبه، ۹ صبح تا ۶ عصر</p>"
+    html += "<p>📍 آدرس: " + CENTER_ADDRESS + "</p>"
+    html += "<p>🕐 شنبه تا پنجشنبه، ۹ صبح تا ۶ عصر</p>"
     html += "</div>"
     html += "<div style='margin-top:30px;text-align:center;'>"
-    html += "<a href='/register' class='btn'>فرم ثبت‌نام</a>"
+    html += "<a href='/location' class='btn'>مشاهده روی نقشه</a> "
+    html += "<a href='/register' class='btn ghost'>ثبت‌نام</a>"
     html += "</div>"
     return render_page("تماس با ما", html)
 
@@ -217,7 +261,7 @@ def register():
         notes = request.form.get("notes", "").strip()
 
         if not name or not age or not grade or not phone:
-            return render_page("خطا", "<h1>خطا</h1><p>لطفاً فیلدهای ضروری را پر کنید.</p><p><a href='/register'>برگرد به فرم</a></p>")
+            return render_page("خطا", "<h1>خطا</h1><p>لطفاً فیلدهای ضروری را پر کنید.</p><p><a href='/register'>برگرد</a></p>")
 
         save_registration(name, age, grade, phone, notes)
 
@@ -225,9 +269,9 @@ def register():
         msg += "نام: " + name + "\n"
         msg += "سن: " + age + "\n"
         msg += "پایه: " + grade + "\n"
-        msg += "تلفن: " + phone + "\n"
+        msg += "تلفن: " + phone
         if notes:
-            msg += "توضیحات: " + notes
+            msg += "\nتوضیحات: " + notes
 
         send_to_telegram(msg)
         send_email("ثبت‌نام جدید: " + name, msg)
@@ -235,18 +279,13 @@ def register():
         return render_page("ثبت‌نام موفق", "<h1>ثبت‌نام انجام شد ✅</h1><p>ممنون " + name + " عزیز! به زودی با شما تماس می‌گیریم.</p><p><a href='/'>برگرد به خانه</a></p>")
 
     form = "<h1>فرم ثبت‌نام</h1>"
-    form += "<p class='muted'>لطفاً اطلاعات زیر را کامل کنید تا با شما تماس بگیریم.</p>"
-    form += "<form method='POST'>"
-    form += "<label>نام و نام خانوادگی دانش‌آموز *</label>"
-    form += "<input name='name' required>"
-    form += "<label>سن *</label>"
-    form += "<input name='age' type='number' min='8' max='25' required>"
-    form += "<label>پایه‌ی تحصیلی *</label>"
-    form += "<input name='grade' placeholder='مثلاً: دهم' required>"
-    form += "<label>شماره تلفن والدین *</label>"
-    form += "<input name='phone' type='tel' required>"
-    form += "<label>توضیحات (اختیاری)</label>"
-    form += "<textarea name='notes' placeholder='هر توضیحی دارید اینجا بنویسید'></textarea>"
+    form += "<p class='muted'>لطفاً اطلاعات زیر را کامل کنید.</p>"
+    form += "<form method='POST' style='margin-top:20px;'>"
+    form += "<label>نام و نام خانوادگی دانش‌آموز *</label><input name='name' required>"
+    form += "<label>سن *</label><input name='age' type='number' min='8' max='25' required>"
+    form += "<label>پایه‌ی تحصیلی *</label><input name='grade' placeholder='مثلاً: دهم' required>"
+    form += "<label>شماره تلفن والدین *</label><input name='phone' type='tel' required>"
+    form += "<label>توضیحات (اختیاری)</label><textarea name='notes'></textarea>"
     form += "<button type='submit' class='btn'>ارسال فرم</button>"
     form += "</form>"
     return render_page("ثبت‌نام", form)
@@ -267,7 +306,7 @@ def blog():
 def blog_post(pid):
     p = get_post(pid)
     if not p:
-        return render_page("پیدا نشد", "<h1>پست پیدا نشد</h1><p><a href='/blog'>برگرد به وبلاگ</a></p>"), 404
+        return render_page("پیدا نشد", "<h1>پست پیدا نشد</h1><p><a href='/blog'>برگرد</a></p>"), 404
     html = "<h1>" + p[1] + "</h1><p class='muted'><a href='/blog'>← برگرد به وبلاگ</a></p><hr><p>" + p[2] + "</p>"
     return render_page(p[1], html)
 
@@ -279,7 +318,7 @@ def admin_login():
             session["logged"] = True
             return redirect("/admin/posts")
         return render_page("خطا", "<h1>رمز اشتباهه</h1><p><a href='/admin/login'>دوباره</a></p>")
-    html = "<h1>ورود مدیریت</h1><form method='POST'><input type='password' name='password' placeholder='رمز عبور' required><button type='submit' class='btn'>ورود</button></form>"
+    html = "<h1>ورود مدیریت</h1><form method='POST'><input type='password' name='password' placeholder='رمز' required><button type='submit' class='btn'>ورود</button></form>"
     return render_page("ورود", html)
 
 
@@ -294,7 +333,7 @@ def admin_posts():
     if not logged_in():
         return redirect("/admin/login")
     posts = get_all_posts()
-    html = "<h1>مدیریت پست‌ها</h1><p><a href='/admin/posts/new'>➕ پست جدید</a> | <a href='/admin/registrations'>📋 ثبت‌نام‌ها</a> | <a href='/admin/logout'>خروج</a></p><hr>"
+    html = "<h1>مدیریت</h1><p><a href='/admin/posts/new'>➕ پست جدید</a> | <a href='/admin/registrations'>📋 ثبت‌نام‌ها</a> | <a href='/admin/logout'>خروج</a></p><hr>"
     if not posts:
         html += "<p class='muted'>هنوز پستی نیست.</p>"
     for p in posts:
@@ -307,7 +346,7 @@ def admin_registrations():
     if not logged_in():
         return redirect("/admin/login")
     regs = get_all_registrations()
-    html = "<h1>ثبت‌نام‌های دریافتی</h1><p><a href='/admin/posts'>← برگرد به مدیریت</a></p><hr>"
+    html = "<h1>ثبت‌نام‌ها</h1><p><a href='/admin/posts'>← برگرد</a></p><hr>"
     if not regs:
         html += "<p class='muted'>هنوز ثبت‌نامی نیومده.</p>"
     for r in regs:
@@ -315,7 +354,7 @@ def admin_registrations():
         html += "<span class='muted'>📞 " + r[4] + "</span><br>"
         if r[5]:
             html += "<span class='muted'>" + r[5] + "</span><br>"
-        html += "<span class='muted'>تاریخ: " + str(r[6]) + "</span>"
+        html += "<span class='muted'>" + str(r[6]) + "</span>"
         html += "<form method='POST' action='/admin/registrations/" + str(r[0]) + "/delete' style='margin-top:8px;'><button type='submit' class='btn' style='padding:5px 15px;font-size:.85rem;'>حذف</button></form>"
         html += "</div>"
     return render_page("ثبت‌نام‌ها", html)
@@ -339,7 +378,7 @@ def admin_new():
         if t and ct:
             create_post(t, ct)
             return redirect("/admin/posts")
-    html = "<h1>پست جدید</h1><form method='POST'><input name='title' placeholder='عنوان' required><textarea name='content' placeholder='متن' required></textarea><button type='submit' class='btn'>ذخیره</button></form><p><a href='/admin/posts'>لغو</a></p>"
+    html = "<h1>پست جدید</h1><form method='POST'><input name='title' placeholder='عنوان' required><textarea name='content' placeholder='متن' required></textarea><button type='submit' class='btn'>ذخیره</button></form>"
     return render_page("پست جدید", html)
 
 
@@ -356,7 +395,7 @@ def admin_edit(pid):
         if t and ct:
             update_post(pid, t, ct)
             return redirect("/admin/posts")
-    html = "<h1>ویرایش پست</h1><form method='POST'><input name='title' value='" + p[1] + "' required><textarea name='content' required>" + p[2] + "</textarea><button type='submit' class='btn'>ذخیره</button></form><p><a href='/admin/posts'>لغو</a></p>"
+    html = "<h1>ویرایش</h1><form method='POST'><input name='title' value='" + p[1] + "' required><textarea name='content' required>" + p[2] + "</textarea><button type='submit' class='btn'>ذخیره</button></form>"
     return render_page("ویرایش", html)
 
 
