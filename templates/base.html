@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}سایت من{% endblock %}</title>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#1c2740;--paper:#faf8f3;--card:#fff;--brass:#b8801f;--brass-soft:#f3e6c9;--mute:#5d6578;--line:#e4dfd2;--r:10px}
+@media (prefers-color-scheme:dark){:root{--ink:#e9ecf5;--paper:#121826;--card:#1a2236;--brass:#e0a840;--brass-soft:#2c2a22;--mute:#a3abc0;--line:#2b344c}}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Vazirmatn,Tahoma,sans-serif;background:var(--paper);color:var(--ink);line-height:1.9}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:900px;margin:0 auto;padding:0 20px}
+header{border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--paper);z-index:5}
+header .wrap{display:flex;justify-content:space-between;align-items:center;height:60px}
+.logo{font-weight:800}
+nav{display:flex;gap:18px;font-size:.95rem}
+nav a{color:var(--mute)}
+nav a:hover{color:var(--ink)}
+main{padding:30px 0;min-height:70vh}
+.box{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:30px}
+.btn{display:inline-block;background:var(--brass);color:#fff;padding:10px 24px;border-radius:var(--r);border:0;cursor:pointer;font:inherit;font-weight:600}
+input,textarea{width:100%;padding:10px 14px;border:1px solid var(--line);border-radius:8px;font:inherit;background:var(--card);color:var(--ink);margin-bottom:12px}
+textarea{min-height:150px;resize:vertical}
+h1,h2{color:var(--brass)}
+h1{margin-bottom:15px}
+.post{padding:18px 0;border-bottom:1px solid var(--line)}
+.post:last-child{border-bottom:0}
+.muted{color:var(--mute);font-size:.9rem}
+footer{text-align:center;padding:24px 20px;color:var(--mute);font-size:.85rem;border-top:1px solid var(--line);margin-top:40px}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <a class="logo" href="/">سایت من</a>
+    <nav>
+      <a href="/">خانه</a>
+      <a href="/blog">وبلاگ</a>
+    </nav>
+  </div>
+</header>
+<main class="wrap">
+  <div class="box">
+    {% block content %}{% endblock %}
+  </div>
+</main>
+<footer>
+  ساخته شده با پایتون | <a href="/blog">وبلاگ</a> | <a href="/admin/login">ورود مدیریت</a>
+</footer>
+</body>
+</html>
