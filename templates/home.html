@@ -30,7 +30,6 @@
     --cream-dark:#151b2c;
     --paper:#0f1626;
     --ink:#e8e4d8;
-    --mute:#9a9versions8a;
     --mute:#9a928a;
     --line:#2c3547;
   }
@@ -41,10 +40,8 @@ body{font-family:Vazirmatn,Tahoma,serif;background:var(--paper);color:var(--ink)
 a{color:inherit;text-decoration:none}
 .wrap{max-width:1040px;margin:0 auto;padding:0 24px}
 
-/* ============ نوار پیشرفت ============ */
 #progress-bar{position:fixed;top:0;right:0;height:3px;width:0%;background:linear-gradient(90deg,var(--gold),var(--gold-light));z-index:9999;transition:width .1s linear}
 
-/* ============ لودر ============ */
 #loader{position:fixed;inset:0;background:var(--paper);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9998;transition:opacity .5s,visibility .5s}
 #loader.hidden{opacity:0;visibility:hidden}
 .loader-book{font-size:64px;animation:bookFloat 1.6s ease-in-out infinite;display:block;margin-bottom:18px}
@@ -56,7 +53,6 @@ a{color:inherit;text-decoration:none}
 @keyframes bookFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
 @keyframes dotBounce{0%,80%,100%{transform:scale(.4);opacity:.4}40%{transform:scale(1);opacity:1}}
 
-/* ============ هدر ============ */
 header{background:var(--navy);border-bottom:3px double var(--gold);position:sticky;top:0;z-index:10}
 header .wrap{display:flex;justify-content:space-between;align-items:center;height:72px}
 .logo{font-weight:800;font-size:1.15rem;color:var(--gold-light);display:flex;align-items:center;gap:10px;letter-spacing:.5px}
@@ -71,7 +67,6 @@ nav a:hover::after{width:100%}
 .cta-s::after{display:none}
 .cta-s:hover{background:var(--gold-light);color:var(--navy-deep)!important}
 
-/* ============ نوار عنوان ============ */
 .page-title{background:var(--navy-deep);color:#e8dfc4;text-align:center;padding:50px 24px 40px;border-bottom:1px solid var(--gold);position:relative}
 .page-title::before,.page-title::after{content:"";position:absolute;left:50%;transform:translateX(-50%);width:80px;height:2px;background:var(--gold)}
 .page-title::before{top:24px}
@@ -80,12 +75,9 @@ nav a:hover::after{width:100%}
 .page-title p{color:#c9c1a8;font-size:.95rem;max-width:600px;margin:0 auto}
 .page-title .ornament{color:var(--gold);font-size:1.4rem;display:block;margin:8px 0}
 
-/* ============ هیرو ============ */
 .hero{padding:80px 0 60px;display:grid;gap:50px;grid-template-columns:1.05fr .95fr;align-items:center}
 @media(max-width:820px){.hero{grid-template-columns:1fr;padding:50px 0 40px;gap:36px}}
-.hero h1{font-size:clamp(1.7rem,4.2vw,2.5rem);line-height:1.7;font-weight:800;margin-bottom:18px;color:var(--navy-deep)}
-.hero h1 em{font-style:normal;color:var(--gold);position:relative}
-.hero h1 em::after{content:"";position:absolute;bottom:-4px;right:0;left:0;height:2px;background:var(--gold);opacity:.4}
+.hero h1{font-size:clamp(1.7rem,4.2vw,2.5rem);line-height:1.7;font-weight:800;margin-bottom:18px;color:var(--gold);text-shadow:0 1px 0 rgba(0,0,0,.05)}
 .lead{color:var(--mute);margin:0 0 30px;max-width:48ch;font-size:1rem;line-height:2.1}
 .btn{display:inline-block;background:var(--navy);color:#f5f1e8;padding:13px 32px;font-weight:600;border:1px solid var(--navy-deep);font-family:inherit;cursor:pointer;margin-bottom:8px;letter-spacing:.3px;transition:background .3s,color .3s,transform .25s}
 .btn:hover{background:var(--navy-deep);color:var(--gold-light);transform:translateY(-1px)}
@@ -93,7 +85,6 @@ nav a:hover::after{width:100%}
 .btn.ghost:hover{background:var(--navy);color:#f5f1e8;transform:translateY(-1px)}
 @media(prefers-color-scheme:dark){.btn{background:var(--gold);color:var(--navy-deep);border-color:var(--gold)}.btn:hover{background:var(--gold-light)}.btn.ghost{color:var(--gold);border-color:var(--gold)}.btn.ghost:hover{background:var(--gold);color:var(--navy-deep)}}
 
-/* ============ کارت برنامه ============ */
 .sched{background:var(--cream);border:1px solid var(--line);padding:0;position:relative}
 .sched::before{content:"";position:absolute;inset:6px;border:1px solid var(--gold);opacity:.4;pointer-events:none}
 .sched-inner{padding:28px 30px}
@@ -103,7 +94,6 @@ nav a:hover::after{width:100%}
 .sched li:first-of-type{border-top:0}
 .sched time{min-width:88px;color:var(--gold);font-weight:700;letter-spacing:.5px}
 
-/* ============ آمار ============ */
 .stats{padding:60px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);margin:30px 0;background:var(--cream-dark)}
 .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0}
 @media(max-width:700px){.stats-grid{grid-template-columns:repeat(2,1fr)}}
@@ -116,7 +106,6 @@ nav a:hover::after{width:100%}
 .stat .lbl{color:var(--mute);font-size:.85rem;margin-top:6px;letter-spacing:.3px}
 @media(prefers-color-scheme:dark){.stat .num{color:var(--gold-light)}}
 
-/* ============ امکانات ============ */
 .features{padding:70px 0}
 .section-head{text-align:center;margin-bottom:50px}
 .section-head .ornament{color:var(--gold);font-size:1.5rem;display:block;margin-bottom:10px;letter-spacing:8px}
@@ -134,7 +123,6 @@ nav a:hover::after{width:100%}
 .feature p{color:var(--mute);font-size:.9rem;line-height:2}
 @media(prefers-color-scheme:dark){.feature h3{color:var(--gold-light)}}
 
-/* ============ بخش تماس ============ */
 .cta-band{background:var(--navy);color:#e8dfc4;padding:60px 30px;text-align:center;margin:50px 0;position:relative}
 .cta-band::before,.cta-band::after{content:"";position:absolute;left:20%;right:20%;height:1px;background:var(--gold);opacity:.5}
 .cta-band::before{top:16px}
@@ -146,7 +134,6 @@ nav a:hover::after{width:100%}
 .cta-band .btn.ghost{background:transparent;color:var(--gold-light);border-color:var(--gold)}
 .cta-band .btn.ghost:hover{background:var(--gold);color:var(--navy-deep)}
 
-/* ============ فوتر ============ */
 footer{background:var(--navy-deep);color:#c9c1a8;padding:60px 24px 0;font-size:.9rem;border-top:3px double var(--gold)}
 .foot-grid{max-width:1040px;margin:0 auto;display:grid;grid-template-columns:1.6fr 1fr 1.4fr;gap:50px;padding-bottom:40px}
 @media(max-width:760px){.foot-grid{grid-template-columns:1fr;gap:36px;text-align:center}}
@@ -162,13 +149,11 @@ footer{background:var(--navy-deep);color:#c9c1a8;padding:60px 24px 0;font-size:.
 .foot-col a:hover{color:var(--gold-light)}
 .foot-bottom{border-top:1px solid #2c3547;text-align:center;padding:22px 0;font-size:.82rem;color:#8a8374;letter-spacing:.3px}
 
-/* ============ دکمه‌ی بازگشت به بالا ============ */
 #toTop{position:fixed;bottom:30px;left:30px;width:46px;height:46px;background:var(--navy);color:var(--gold-light);border:1px solid var(--gold);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;opacity:0;visibility:hidden;transform:translateY(20px);transition:opacity .35s,transform .35s,visibility .35s,background .25s;z-index:900}
 #toTop.show{opacity:1;visibility:visible;transform:translateY(0)}
 #toTop:hover{background:var(--navy-deep)}
 @media(max-width:600px){#toTop{bottom:20px;left:20px;width:40px;height:40px}}
 
-/* ============ انیمیشن اسکرول ============ */
 .reveal{opacity:0;transform:translateY(30px);transition:opacity .9s ease,transform .9s ease}
 .reveal.visible{opacity:1;transform:translateY(0)}
 .reveal-delay-1{transition-delay:.1s}
@@ -192,6 +177,7 @@ footer{background:var(--navy-deep);color:#c9c1a8;padding:60px 24px 0;font-size:.
       <a href="/faq">سوالات متداول</a>
       <a href="#features">امکانات</a>
       <a href="#schedule">برنامه</a>
+      <a href="/location">آدرس ما</a>
       <a href="/contact">تماس</a>
       <a href="/blog">وبلاگ</a>
       <a href="/register" class="cta-s">ثبت‌نام</a>
@@ -208,7 +194,7 @@ footer{background:var(--navy-deep);color:#c9c1a8;padding:60px 24px 0;font-size:.
 <main class="wrap">
   <section class="hero">
     <div class="reveal">
-      <h1>جایی برای <em>تمرکز</em>، <em>آرامش</em> و <em>پیشرفت</em></h1>
+      <h1>جایی برای تمرکز، آرامش و پیشرفت</h1>
       <p class="lead">مرکز مطالعه‌ی ما با محیطی ساکت، امکانات کامل و برنامه‌ی منظم روزانه، به دانش‌آموزان پسر کمک می‌کند تا با تمرکز بیشتر به اهداف تحصیلی خود برسند.</p>
       <a href="/register" class="btn">ثبت‌نام</a>
       <a href="#schedule" class="btn ghost">برنامه‌ی روزانه</a>
@@ -262,7 +248,7 @@ footer{background:var(--navy-deep);color:#c9c1a8;padding:60px 24px 0;font-size:.
     <p>همین حالا فرم ثبت‌نام را پر کنید یا با ما تماس بگیرید.</p>
     <a href="/register" class="btn">ثبت‌نام</a>
     <a href="tel:+989931783620" class="btn ghost">تماس</a>
-    <a href="mailto:cady1max1@gmail.com" class="btn ghost">ایمیل</a>
+    <a href="/location" class="btn ghost">آدرس ما</a>
   </section>
 </main>
 
@@ -277,6 +263,7 @@ footer{background:var(--navy-deep);color:#c9c1a8;padding:60px 24px 0;font-size:.
       <ul>
         <li><a href="/">خانه</a></li>
         <li><a href="/faq">سوالات متداول</a></li>
+        <li><a href="/location">آدرس و لوکیشن</a></li>
         <li><a href="/blog">وبلاگ</a></li>
         <li><a href="/register">ثبت‌نام</a></li>
         <li><a href="/admin/login">ورود مدیریت</a></li>
