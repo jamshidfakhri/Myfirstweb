@@ -11,7 +11,7 @@
 @media (prefers-color-scheme:dark){:root{--ink:#e9ecf5;--paper:#121826;--card:#1a2236;--brass:#e0a840;--brass-soft:#2c2a22;--mute:#a3abc0;--line:#2b344c}}
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
-body{font-family:Vazirmatn,Tahoma,sans-serif;background:var(--paper);color:var(--ink);line-height:1.9}
+body{font-family:Vazirmatn,Tahoma,sans-serif;background:var(--paper);color:var(--ink);line-height:1.9;overflow-x:hidden}
 a{color:inherit}
 .wrap{max-width:960px;margin:0 auto;padding:0 20px}
 header{border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--paper);z-index:5}
@@ -57,6 +57,14 @@ h1{font-size:clamp(1.8rem,5vw,2.8rem);line-height:1.5;font-weight:800}
 .cta-band h2{margin-bottom:12px;color:var(--brass)}
 .cta-band p{color:var(--mute);margin-bottom:22px}
 footer{text-align:center;padding:30px 20px;color:var(--mute);font-size:.85rem;border-top:1px solid var(--line)}
+
+/* ---------- انیمیشن اسکرول ---------- */
+.reveal{opacity:0;transform:translateY(40px);transition:opacity .8s ease,transform .8s ease}
+.reveal.visible{opacity:1;transform:translateY(0)}
+.reveal-delay-1{transition-delay:.1s}
+.reveal-delay-2{transition-delay:.2s}
+.reveal-delay-3{transition-delay:.3s}
+.reveal-delay-4{transition-delay:.4s}
 </style>
 </head>
 <body>
@@ -77,13 +85,13 @@ footer{text-align:center;padding:30px 20px;color:var(--mute);font-size:.85rem;bo
 
 <main class="wrap">
   <section class="hero">
-    <div>
+    <div class="reveal">
       <h1>فضایی آرام برای درس خواندن پسران</h1>
       <p class="lead">مرکز مطالعه‌ی ما با محیطی ساکت، امکانات کامل و برنامه‌ی روزانه، به دانش‌آموزان پسر کمک می‌کند تا با تمرکز بیشتر درس بخوانند.</p>
       <a href="/register" class="btn">📝 فرم ثبت‌نام</a>
       <a href="#schedule" class="btn ghost">برنامه‌ی روزانه</a>
     </div>
-    <div class="sched" id="schedule">
+    <div class="sched reveal reveal-delay-2" id="schedule">
       <h2>برنامه‌ی روزانه</h2>
       <ul>
         <li><time>۷:۰۰</time> بیداری و صبحانه</li>
@@ -98,22 +106,22 @@ footer{text-align:center;padding:30px 20px;color:var(--mute);font-size:.85rem;bo
 
   <section class="stats">
     <div class="stats-grid">
-      <div class="stat">
+      <div class="stat reveal">
         <span class="ico">👨‍🎓</span>
         <div class="num">۵۰+</div>
         <div class="lbl">دانش‌آموز موفق</div>
       </div>
-      <div class="stat">
+      <div class="stat reveal reveal-delay-1">
         <span class="ico">📅</span>
         <div class="num">۱۰</div>
         <div class="lbl">سال سابقه</div>
       </div>
-      <div class="stat">
+      <div class="stat reveal reveal-delay-2">
         <span class="ico">📚</span>
         <div class="num">۳</div>
         <div class="lbl">سالن مطالعه</div>
       </div>
-      <div class="stat">
+      <div class="stat reveal reveal-delay-3">
         <span class="ico">⭐</span>
         <div class="num">۹۸٪</div>
         <div class="lbl">رضایت والدین</div>
@@ -122,18 +130,18 @@ footer{text-align:center;padding:30px 20px;color:var(--mute);font-size:.85rem;bo
   </section>
 
   <section class="features" id="features">
-    <h2>چرا ما را انتخاب کنید؟</h2>
+    <h2 class="reveal">چرا ما را انتخاب کنید؟</h2>
     <div class="feature-grid">
-      <div class="feature"><span class="ico">📚</span><h3>محیط ساکت</h3><p>سالن‌های مطالعه‌ی مجزا با تهویه‌ی مناسب و نور کافی.</p></div>
-      <div class="feature"><span class="ico">👨‍🏫</span><h3>مشاور تحصیلی</h3><p>راهنمایی روزانه برای برنامه‌ریزی و پیشرفت درسی.</p></div>
-      <div class="feature"><span class="ico">🍽️</span><h3>غذای خانگی</h3><p>سه وعده‌ی غذای سالم و خانگی زیر نظر متخصص تغذیه.</p></div>
-      <div class="feature"><span class="ico">🛏️</span><h3>اتاق‌های راحت</h3><p>اتاق‌های دو نفره با سرویس بهداشتی اختصاصی.</p></div>
-      <div class="feature"><span class="ico">🔒</span><h3>امنیت کامل</h3><p>دوربین‌های مدار بسته و نگهبان ۲۴ ساعته.</p></div>
-      <div class="feature"><span class="ico">📈</span><h3>پیشرفت تضمینی</h3><p>گزارش هفتگی از وضعیت درسی به والدین.</p></div>
+      <div class="feature reveal"><span class="ico">📚</span><h3>محیط ساکت</h3><p>سالن‌های مطالعه‌ی مجزا با تهویه‌ی مناسب و نور کافی.</p></div>
+      <div class="feature reveal reveal-delay-1"><span class="ico">👨‍🏫</span><h3>مشاور تحصیلی</h3><p>راهنمایی روزانه برای برنامه‌ریزی و پیشرفت درسی.</p></div>
+      <div class="feature reveal reveal-delay-2"><span class="ico">🍽️</span><h3>غذای خانگی</h3><p>سه وعده‌ی غذای سالم و خانگی زیر نظر متخصص تغذیه.</p></div>
+      <div class="feature reveal reveal-delay-1"><span class="ico">🛏️</span><h3>اتاق‌های راحت</h3><p>اتاق‌های دو نفره با سرویس بهداشتی اختصاصی.</p></div>
+      <div class="feature reveal reveal-delay-2"><span class="ico">🔒</span><h3>امنیت کامل</h3><p>دوربین‌های مدار بسته و نگهبان ۲۴ ساعته.</p></div>
+      <div class="feature reveal reveal-delay-3"><span class="ico">📈</span><h3>پیشرفت تضمینی</h3><p>گزارش هفتگی از وضعیت درسی به والدین.</p></div>
     </div>
   </section>
 
-  <section class="cta-band" id="contact">
+  <section class="cta-band reveal" id="contact">
     <h2>آماده‌ی شروع هستی؟</h2>
     <p>همین حالا فرم ثبت‌نام رو پر کن یا با ما تماس بگیر.</p>
     <a href="/register" class="btn">📝 فرم ثبت‌نام</a>
@@ -145,7 +153,7 @@ footer{text-align:center;padding:30px 20px;color:var(--mute);font-size:.85rem;bo
 <footer>
   <div>© مرکز مطالعه و پانسیون پسرانه — تمامی حقوق محفوظ است.</div>
   <div style="margin-top:12px;">
-    <a href="tel:+989931783620" style="color:var(--mute);margin:0 8px;">📞 ۰۹۹۳۱۷۸۳۶۲۰</a>
+    <a href="tel:+989931783620" style="color:var(--mute);margin:0 8px;">📞 ۰۹۹۳۱۷۸۳۶۲</a>
     <a href="mailto:cady1max1@gmail.com" style="color:var(--mute);margin:0 8px;">✉️ cady1max1@gmail.com</a>
   </div>
   <div style="margin-top:12px;">
@@ -155,6 +163,33 @@ footer{text-align:center;padding:30px 20px;color:var(--mute);font-size:.85rem;bo
     <a href="/admin/login" style="color:var(--mute);margin:0 8px;">ورود مدیریت</a>
   </div>
 </footer>
+
+<script>
+    const revealElements = document.querySelectorAll('.reveal');
+    
+    const observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+                observer.unobserve(entry.target);
+            }
+        });
+    }, {
+        threshold: 0.15,
+        rootMargin: '0px 0px -50px 0px'
+    });
+    
+    revealElements.forEach(function(el) {
+        observer.observe(el);
+    });
+    
+    // اگه مرورگر قدیمی بود و IntersectionObserver نداشت
+    if (!('IntersectionObserver' in window)) {
+        revealElements.forEach(function(el) {
+            el.classList.add('visible');
+        });
+    }
+</script>
 
 </body>
 </html>
