@@ -12,113 +12,247 @@ STYLE = """
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
     :root {
+        --bg: #f8f9ff;
         --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         --card-bg: #ffffff;
-        --text-color: #333333;
-        --text-secondary: #555555;
-        --heading-color: #764ba2;
-        --link-color: #667eea;
-        --border-color: #eeeeee;
-        --input-border: #e0e0e0;
+        --text: #1f2937;
+        --text-light: #6b7280;
+        --heading: #764ba2;
+        --accent: #667eea;
+        --border: #e5e7eb;
+        --shadow: rgba(0,0,0,0.08);
     }
     [data-theme="dark"] {
+        --bg: #0f172a;
         --bg-gradient: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-        --card-bg: #1f2937;
-        --text-color: #e5e7eb;
-        --text-secondary: #b0b0b0;
-        --heading-color: #a78bfa;
-        --link-color: #a78bfa;
-        --border-color: #374151;
-        --input-border: #374151;
+        --card-bg: #1e293b;
+        --text: #e5e7eb;
+        --text-light: #94a3b8;
+        --heading: #a78bfa;
+        --accent: #a78bfa;
+        --border: #334155;
+        --shadow: rgba(0,0,0,0.4);
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
         font-family: Tahoma, sans-serif;
-        background: var(--bg-gradient);
+        background: var(--bg);
         min-height: 100vh;
-        padding: 20px;
-        color: var(--text-color);
-        line-height: 1.8;
+        color: var(--text);
+        line-height: 1.9;
         transition: background 0.4s, color 0.4s;
     }
+
+    /* ---------- هدر ---------- */
+    .topbar {
+        position: sticky;
+        top: 0;
+        background: var(--card-bg);
+        border-bottom: 1px solid var(--border);
+        padding: 15px 25px;
+        z-index: 100;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: background 0.4s, border-color 0.4s;
+    }
+    .logo {
+        font-size: 20px;
+        font-weight: bold;
+        color: var(--heading);
+    }
+    .topbar nav a {
+        color: var(--text);
+        text-decoration: none;
+        margin: 0 10px;
+        font-size: 15px;
+        transition: color 0.3s;
+    }
+    .topbar nav a:hover { color: var(--accent); }
+    .theme-btn {
+        width: 42px;
+        height: 42px;
+        border-radius: 50%;
+        background: transparent;
+        border: 2px solid var(--heading);
+        color: var(--heading);
+        font-size: 18px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: transform 0.3s;
+    }
+    .theme-btn:hover { transform: rotate(20deg) scale(1.1); }
+
+    /* ---------- هیرو ---------- */
+    .hero {
+        padding: 80px 25px 60px;
+        text-align: center;
+        background: var(--bg-gradient);
+        color: #fff;
+    }
+    .hero h1 {
+        font-size: 42px;
+        margin-bottom: 20px;
+        line-height: 1.4;
+        color: #fff;
+    }
+    .hero p {
+        font-size: 18px;
+        max-width: 600px;
+        margin: 0 auto 35px;
+        opacity: 0.95;
+    }
+    .hero .btn {
+        display: inline-block;
+        background: #fff;
+        color: #764ba2;
+        padding: 15px 40px;
+        border-radius: 40px;
+        font-size: 17px;
+        font-weight: bold;
+        text-decoration: none;
+        transition: transform 0.3s, box-shadow 0.3s;
+    }
+    .hero .btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 15px 30px rgba(0,0,0,0.25);
+    }
+
+    /* ---------- کارت‌ها ---------- */
+    .section {
+        padding: 60px 25px;
+        max-width: 1000px;
+        margin: 0 auto;
+    }
+    .section-title {
+        text-align: center;
+        color: var(--heading);
+        font-size: 28px;
+        margin-bottom: 40px;
+    }
+    .cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 25px;
+    }
+    .card {
+        background: var(--card-bg);
+        padding: 35px 25px;
+        border-radius: 20px;
+        border: 1px solid var(--border);
+        text-align: center;
+        transition: transform 0.3s, box-shadow 0.3s;
+    }
+    .card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 15px 35px var(--shadow);
+    }
+    .card .icon {
+        font-size: 50px;
+        margin-bottom: 15px;
+        display: inline-block;
+    }
+    .card h3 {
+        color: var(--heading);
+        font-size: 20px;
+        margin-bottom: 12px;
+    }
+    .card p {
+        color: var(--text-light);
+        font-size: 15px;
+    }
+
+    /* ---------- فوتر ---------- */
+    footer {
+        background: var(--card-bg);
+        border-top: 1px solid var(--border);
+        padding: 40px 25px 25px;
+        text-align: center;
+        color: var(--text-light);
+        font-size: 14px;
+    }
+    footer a {
+        color: var(--text-light);
+        text-decoration: none;
+        margin: 0 10px;
+        font-size: 13px;
+        opacity: 0.7;
+        transition: color 0.3s, opacity 0.3s;
+    }
+    footer a:hover {
+        color: var(--accent);
+        opacity: 1;
+    }
+    footer .copy {
+        margin-bottom: 15px;
+    }
+
+    /* ---------- صفحه‌های داخلی ---------- */
     .box {
         background: var(--card-bg);
         max-width: 700px;
-        margin: 0 auto;
+        margin: 40px auto;
         padding: 40px 30px;
         border-radius: 20px;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-        transition: background 0.4s;
+        box-shadow: 0 10px 30px var(--shadow);
+        border: 1px solid var(--border);
+        transition: background 0.4s, border-color 0.4s;
     }
-    .hero { text-align: center; margin-bottom: 25px; }
-    .hero h1 { color: var(--heading-color); font-size: 32px; margin-bottom: 15px; }
-    .hero p { color: var(--text-secondary); font-size: 17px; margin-bottom: 25px; }
-    .nav-links { text-align: center; padding-top: 20px; border-top: 1px solid var(--border-color); }
-    a { color: var(--link-color); text-decoration: none; margin: 0 8px; font-weight: bold; }
+    .box h1 { color: var(--heading); margin-bottom: 20px; }
+    .box h2 { color: var(--heading); margin: 20px 0 10px; }
+    .box p { color: var(--text); margin-bottom: 15px; }
+    a { color: var(--accent); text-decoration: none; }
     a:hover { text-decoration: underline; }
-    .btn {
-        display: inline-block;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: #fff !important;
-        padding: 14px 30px;
-        border-radius: 30px;
-        text-decoration: none !important;
-        margin: 5px;
-    }
-    .btn:hover { text-decoration: none !important; opacity: 0.9; }
     input, textarea {
         width: 100%;
-        padding: 12px 15px;
-        border: 2px solid var(--input-border);
-        border-radius: 10px;
+        padding: 13px 16px;
+        border: 2px solid var(--border);
+        border-radius: 12px;
         font-size: 16px;
         font-family: Tahoma, sans-serif;
         margin-bottom: 15px;
         background: var(--card-bg);
-        color: var(--text-color);
-        transition: border-color 0.3s, background 0.4s, color 0.4s;
+        color: var(--text);
+        transition: border-color 0.3s;
     }
-    input:focus, textarea:focus { outline: none; border-color: var(--heading-color); }
+    input:focus, textarea:focus {
+        outline: none;
+        border-color: var(--heading);
+    }
     textarea { min-height: 150px; resize: vertical; }
-    button {
+    button.btn-primary {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: #fff;
-        padding: 14px 30px;
+        padding: 13px 32px;
         border: none;
         border-radius: 30px;
         font-size: 16px;
         font-family: Tahoma, sans-serif;
         cursor: pointer;
+        transition: transform 0.3s;
     }
-    button:hover { opacity: 0.9; }
-    hr { border: none; border-top: 1px solid var(--border-color); margin: 20px 0; }
-    h2 { color: var(--heading-color); }
-    .theme-btn {
-        position: fixed;
-        top: 20px;
-        left: 20px;
-        width: 50px;
-        height: 50px;
-        border-radius: 50%;
-        background: var(--card-bg);
-        border: 2px solid var(--heading-color);
-        color: var(--heading-color);
-        font-size: 22px;
-        cursor: pointer;
-        z-index: 999;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-        transition: transform 0.3s, background 0.4s;
+    button.btn-primary:hover { transform: translateY(-2px); }
+    hr { border: none; border-top: 1px solid var(--border); margin: 25px 0; }
+    .post-item {
+        padding: 20px 0;
+        border-bottom: 1px solid var(--border);
     }
-    .theme-btn:hover { transform: rotate(20deg) scale(1.1); }
+    .post-item:last-child { border-bottom: none; }
+    .post-item h3 { color: var(--heading); margin-bottom: 8px; font-size: 20px; }
+    .post-item .preview { color: var(--text-light); font-size: 15px; }
+
     @media (max-width: 600px) {
-        body { padding: 10px; }
-        .box { padding: 25px 20px; border-radius: 15px; }
-        .hero h1 { font-size: 24px; }
+        .hero { padding: 50px 20px 40px; }
+        .hero h1 { font-size: 28px; }
         .hero p { font-size: 15px; }
-        .theme-btn { top: 10px; left: 10px; width: 42px; height: 42px; font-size: 18px; }
+        .section { padding: 40px 20px; }
+        .section-title { font-size: 22px; }
+        .topbar { padding: 12px 15px; }
+        .topbar nav a { margin: 0 5px; font-size: 13px; }
+        .logo { font-size: 17px; }
+        .box { padding: 25px 20px; margin: 20px 15px; }
     }
 </style>
 <script>
@@ -142,7 +276,31 @@ STYLE = """
 </script>
 """
 
-THEME_BTN = "<button class='theme-btn' id='themeBtn' onclick='toggleTheme()'>🌙</button>"
+
+def topbar():
+    return """
+    <div class="topbar">
+        <div class="logo">سایت من</div>
+        <nav>
+            <a href="/">خانه</a>
+            <a href="/blog">وبلاگ</a>
+            <button class="theme-btn" id="themeBtn" onclick="toggleTheme()">🌙</button>
+        </nav>
+    </div>
+    """
+
+
+def footer():
+    return """
+    <footer>
+        <div class="copy">ساخته شده با ❤️ و پایتون</div>
+        <div>
+            <a href="/">خانه</a>
+            <a href="/blog">وبلاگ</a>
+            <a href="/admin/login">ورود مدیریت</a>
+        </div>
+    </footer>
+    """
 
 
 def init_db():
@@ -206,30 +364,50 @@ def ping():
 
 @app.route("/")
 def home():
-    return STYLE + THEME_BTN + """
-    <div class='box'>
-        <div class='hero'>
-            <h1>به سایت من خوش اومدی 👋</h1>
-            <p>اینجا جاییه که تجربه‌های یادگیری برنامه‌نویسی‌ام رو باهات به اشتراک می‌ذارم. از پایتون و Flask تا ساخت ربات تلگرام و وب‌سایت.</p>
-            <a href='/blog' class='btn'>وبلاگم رو بخون</a>
-        </div>
-        <div class='nav-links'>
-            <a href='/blog'>وبلاگ</a>
-            <a href='/admin/login'>ورود ادمین</a>
+    return STYLE + topbar() + """
+    <div class="hero">
+        <h1>به سایت من خوش اومدی 👋</h1>
+        <p>اینجا جاییه که تجربه‌های یادگیری برنامه‌نویسی‌ام رو باهات به اشتراک می‌ذارم. از پایتون و Flask تا ساخت ربات تلگرام و وب‌سایت.</p>
+        <a href="/blog" class="btn">وبلاگم رو بخون</a>
+    </div>
+
+    <div class="section">
+        <h2 class="section-title">اینجا چی پیدا می‌کنی؟</h2>
+        <div class="cards">
+            <div class="card">
+                <div class="icon">📝</div>
+                <h3>یادداشت‌های یادگیری</h3>
+                <p>هر چیزی که یاد می‌گیرم رو اینجا می‌نویسم تا خودم هم بعداً مرورش کنم.</p>
+            </div>
+            <div class="card">
+                <div class="icon">🤖</div>
+                <h3>پروژه‌های واقعی</h3>
+                <p>ربات تلگرام، وب‌سایت، و هر چیزی که با دست خودم ساختم.</p>
+            </div>
+            <div class="card">
+                <div class="icon">🌱</div>
+                <h3>مسیر یادگیری</h3>
+                <p>از صفر شروع کردم. اگه تو هم تازه‌کاری، می‌تونی با من همراه بشی.</p>
+            </div>
         </div>
     </div>
-    """
+    """ + footer()
 
 
 @app.route("/blog")
 def blog():
     posts = get_all_posts()
-    html = STYLE + THEME_BTN + "<div class='box'><h1>وبلاگ من</h1><a href='/'>خانه</a> | <a href='/admin/login'>ورود ادمین</a><hr>"
+    html = STYLE + topbar() + "<div class='box'><h1>وبلاگ من</h1><p>اینجا یادداشت‌هام رو می‌نویسم.</p><hr>"
     if not posts:
-        html += "<p>هنوز پستی نیست.</p>"
+        html += "<p>هنوز پستی نوشته نشده. به زودی...</p>"
     for p in posts:
-        html += "<div><h2><a href='/blog/" + str(p[0]) + "'>" + p[1] + "</a></h2><p>" + p[2][:150] + "...</p></div><hr>"
-    html += "<p><a href='/'>برگرد به خانه</a></p></div>"
+        html += (
+            "<div class='post-item'>"
+            "<h3><a href='/blog/" + str(p[0]) + "'>" + p[1] + "</a></h3>"
+            "<div class='preview'>" + p[2][:150] + "...</div>"
+            "</div>"
+        )
+    html += "</div>" + footer()
     return html
 
 
@@ -237,8 +415,8 @@ def blog():
 def blog_post(pid):
     p = get_post(pid)
     if not p:
-        return STYLE + THEME_BTN + "<div class='box'><h1>پست پیدا نشد</h1><a href='/blog'>برگرد</a></div>", 404
-    return STYLE + THEME_BTN + "<div class='box'><h1>" + p[1] + "</h1><a href='/blog'>برگرد به وبلاگ</a><hr><p>" + p[2] + "</p></div>"
+        return STYLE + topbar() + "<div class='box'><h1>پست پیدا نشد</h1><p><a href='/blog'>برگرد به وبلاگ</a></p></div>" + footer(), 404
+    return STYLE + topbar() + "<div class='box'><h1>" + p[1] + "</h1><p><a href='/blog'>← برگرد به وبلاگ</a></p><hr><p>" + p[2] + "</p></div>" + footer()
 
 
 @app.route("/admin/login", methods=["GET", "POST"])
@@ -247,17 +425,17 @@ def admin_login():
         if request.form.get("password", "") == ADMIN_PASSWORD:
             session["logged"] = True
             return redirect("/admin/posts")
-        return STYLE + THEME_BTN + "<div class='box'><h1>رمز اشتباهه</h1><a href='/admin/login'>دوباره تلاش کن</a></div>"
-    return STYLE + THEME_BTN + """
+        return STYLE + topbar() + "<div class='box'><h1>رمز اشتباهه</h1><p><a href='/admin/login'>دوباره تلاش کن</a></p></div>" + footer()
+    return STYLE + topbar() + """
     <div class='box'>
-        <h1>ورود ادمین</h1>
+        <h1>ورود مدیریت</h1>
+        <p>این بخش فقط برای مدیر سایته.</p>
         <form method='POST'>
             <input type='password' name='password' placeholder='رمز عبور' required>
-            <button type='submit'>ورود</button>
+            <button type='submit' class='btn-primary'>ورود</button>
         </form>
-        <p><a href='/'>برگرد به خانه</a></p>
     </div>
-    """
+    """ + footer()
 
 
 @app.route("/admin/logout")
@@ -271,12 +449,12 @@ def admin_posts():
     if not logged_in():
         return redirect("/admin/login")
     posts = get_all_posts()
-    html = STYLE + THEME_BTN + "<div class='box'><h1>مدیریت پست‌ها</h1><a href='/admin/posts/new'>پست جدید</a> | <a href='/admin/logout'>خروج</a><hr>"
+    html = STYLE + topbar() + "<div class='box'><h1>مدیریت پست‌ها</h1><p><a href='/admin/posts/new'>➕ پست جدید</a> | <a href='/admin/logout'>خروج</a></p><hr>"
     if not posts:
         html += "<p>هنوز پستی نیست.</p>"
     for p in posts:
-        html += "<div><b>" + p[1] + "</b> | <a href='/admin/posts/" + str(p[0]) + "/edit'>ویرایش</a></div><hr>"
-    html += "</div>"
+        html += "<div class='post-item'><b>" + p[1] + "</b> | <a href='/admin/posts/" + str(p[0]) + "/edit'>ویرایش</a></div>"
+    html += "</div>" + footer()
     return html
 
 
@@ -290,17 +468,17 @@ def admin_new():
         if t and c:
             create_post(t, c)
             return redirect("/admin/posts")
-    return STYLE + THEME_BTN + """
+    return STYLE + topbar() + """
     <div class='box'>
         <h1>پست جدید</h1>
         <form method='POST'>
-            <input name='title' placeholder='عنوان' required>
-            <textarea name='content' placeholder='متن' required></textarea>
-            <button type='submit'>ذخیره</button>
+            <input name='title' placeholder='عنوان پست' required>
+            <textarea name='content' placeholder='متن پست رو اینجا بنویس...' required></textarea>
+            <button type='submit' class='btn-primary'>ذخیره</button>
         </form>
-        <p><a href='/admin/posts'>لغو</a></p>
+        <p style="margin-top:15px;"><a href='/admin/posts'>لغو و برگشت</a></p>
     </div>
-    """
+    """ + footer()
 
 
 @app.route("/admin/posts/<int:pid>/edit", methods=["GET", "POST"])
@@ -316,17 +494,17 @@ def admin_edit(pid):
         if t and c:
             update_post(pid, t, c)
             return redirect("/admin/posts")
-    return STYLE + THEME_BTN + """
+    return STYLE + topbar() + """
     <div class='box'>
         <h1>ویرایش پست</h1>
         <form method='POST'>
             <input name='title' value='""" + p[1] + """' required>
             <textarea name='content' required>""" + p[2] + """</textarea>
-            <button type='submit'>ذخیره</button>
+            <button type='submit' class='btn-primary'>ذخیره تغییرات</button>
         </form>
-        <p><a href='/admin/posts'>لغو</a></p>
+        <p style="margin-top:15px;"><a href='/admin/posts'>لغو و برگشت</a></p>
     </div>
-    """
+    """ + footer()
 
 
 @app.route("/admin/posts/<int:pid>/delete", methods=["POST"])
