@@ -1,7 +1,9 @@
 import os
 import sqlite3
+import smtplib
 import urllib.request
 import urllib.parse
+from email.mime.text import MIMEText
 from flask import Flask, request, redirect, session, jsonify, render_template
 
 app = Flask(__name__)
@@ -10,6 +12,9 @@ app.secret_key = os.environ.get("SECRET_KEY", "secret123")
 ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "admin123")
 BOT_TOKEN = os.environ.get("BOT_TOKEN", "")
 ADMIN_ID = os.environ.get("ADMIN_ID", "")
+GMAIL_USER = os.environ.get("GMAIL_USER", "")
+GMAIL_APP_PASSWORD = os.environ.get("GMAIL_APP_PASSWORD", "")
+NOTIFY_EMAIL = os.environ.get("NOTIFY_EMAIL", "")
 DB_NAME = "site_data.db"
 
 
@@ -20,6 +25,27 @@ def init_db():
     c.execute("CREATE TABLE IF NOT EXISTS registrations (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, age TEXT, grade TEXT, phone TEXT, notes TEXT, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)")
     conn.commit()
     conn.close()
+
+
+def send_email(subject, body):
+    if not GMAIL_USER or not GMAIL_APP_PASSWORD or not NOTIFY_EMAIL:
+        print("Email config missing")
+        return False
+    try:
+        msg = MIMEText(body, "plain", "utf-8")
+        msg["Subject"] = subject
+        msg["From"] = GMAIL_USER
+        msg["To"] = NOTIFY_EMAIL
+
+        server = smtplib.SMTP("smtp.gmail.com", 587)
+        server.starttls()
+        server.login(GMAIL_USER, GMAIL_APP_PASSWORD)
+        server.send_message(msg)
+        server.quit()
+        return True
+    except Exception as e:
+        print("Email error: " + str(e))
+        return False
 
 
 def send_to_telegram(text):
@@ -135,13 +161,15 @@ def register():
         save_registration(name, age, grade, phone, notes)
 
         msg = "ثبت‌نام جدید در سایت\n\n"
-        msg += "نام دانش‌آموز: " + name + "\n"
+        msg += "نام: " + name + "\n"
         msg += "سن: " + age + "\n"
         msg += "پایه: " + grade + "\n"
-        msg += "تلفن والدین: " + phone + "\n"
+        msg += "تلفن: " + phone + "\n"
         if notes:
             msg += "توضیحات: " + notes
+
         send_to_telegram(msg)
+        send_email("ثبت‌نام جدید: " + name, msg)
 
         return render_page("ثبت‌نام موفق", "<h1>ثبت‌نام انجام شد ✅</h1><p>ممنون " + name + " عزیز! به زودی با شما تماس می‌گیریم.</p><p><a href='/'>برگرد به خانه</a></p>")
 
