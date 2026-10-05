@@ -8,6 +8,32 @@ app.secret_key = os.environ.get("SECRET_KEY", "secret123")
 ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "admin123")
 DB_NAME = "site_data.db"
 
+STYLE = """
+<style>
+    body {
+        font-family: Tahoma, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        margin: 0;
+        padding: 40px 20px;
+        color: #333;
+    }
+    .box {
+        background: #fff;
+        max-width: 700px;
+        margin: 0 auto;
+        padding: 40px;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        text-align: center;
+    }
+    h1 { color: #764ba2; }
+    h2 { color: #764ba2; }
+    a { color: #667eea; text-decoration: none; margin: 0 10px; }
+    a:hover { text-decoration: underline; }
+</style>
+"""
+
 
 def init_db():
     conn = sqlite3.connect(DB_NAME)
@@ -70,17 +96,18 @@ def ping():
 
 @app.route("/")
 def home():
-    return "<h1>سایت کار می کند</h1><a href='/blog'>وبلاگ</a> | <a href='/admin/login'>ورود ادمین</a>"
+    return STYLE + "<div class='box'><h1>سایت کار می کند</h1><a href='/blog'>وبلاگ</a> | <a href='/admin/login'>ورود ادمین</a></div>"
 
 
 @app.route("/blog")
 def blog():
     posts = get_all_posts()
-    html = "<h1>وبلاگ</h1><a href='/'>خانه</a> | <a href='/admin/login'>ورود ادمین</a><hr>"
+    html = STYLE + "<div class='box'><h1>وبلاگ</h1><a href='/'>خانه</a> | <a href='/admin/login'>ورود ادمین</a><hr>"
     if not posts:
         html += "<p>هنوز پستی نیست.</p>"
     for p in posts:
         html += "<div><h2><a href='/blog/" + str(p[0]) + "'>" + p[1] + "</a></h2><p>" + p[2][:100] + "...</p></div><hr>"
+    html += "</div>"
     return html
 
 
@@ -89,7 +116,7 @@ def blog_post(pid):
     p = get_post(pid)
     if not p:
         return "پست پیدا نشد", 404
-    return "<h1>" + p[1] + "</h1><a href='/blog'>برگرد</a><hr><p>" + p[2] + "</p>"
+    return STYLE + "<div class='box'><h1>" + p[1] + "</h1><a href='/blog'>برگرد</a><hr><p>" + p[2] + "</p></div>"
 
 
 @app.route("/admin/login", methods=["GET", "POST"])
@@ -98,13 +125,15 @@ def admin_login():
         if request.form.get("password", "") == ADMIN_PASSWORD:
             session["logged"] = True
             return redirect("/admin/posts")
-        return "<h1>رمز اشتباهه</h1><a href='/admin/login'>دوباره</a>"
-    return """
-    <h1>ورود ادمین</h1>
-    <form method='POST'>
-        <input type='password' name='password' placeholder='رمز' required>
-        <button type='submit'>ورود</button>
-    </form>
+        return STYLE + "<div class='box'><h1>رمز اشتباهه</h1><a href='/admin/login'>دوباره</a></div>"
+    return STYLE + """
+    <div class='box'>
+        <h1>ورود ادمین</h1>
+        <form method='POST'>
+            <input type='password' name='password' placeholder='رمز' required>
+            <button type='submit'>ورود</button>
+        </form>
+    </div>
     """
 
 
@@ -119,9 +148,10 @@ def admin_posts():
     if not logged_in():
         return redirect("/admin/login")
     posts = get_all_posts()
-    html = "<h1>مدیریت پست‌ها</h1><a href='/admin/posts/new'>پست جدید</a> | <a href='/admin/logout'>خروج</a><hr>"
+    html = STYLE + "<div class='box'><h1>مدیریت پست‌ها</h1><a href='/admin/posts/new'>پست جدید</a> | <a href='/admin/logout'>خروج</a><hr>"
     for p in posts:
         html += "<div><b>" + p[1] + "</b> | <a href='/admin/posts/" + str(p[0]) + "/edit'>ویرایش</a></div><hr>"
+    html += "</div>"
     return html
 
 
@@ -135,13 +165,15 @@ def admin_new():
         if t and c:
             create_post(t, c)
             return redirect("/admin/posts")
-    return """
-    <h1>پست جدید</h1>
-    <form method='POST'>
-        <input name='title' placeholder='عنوان' required><br><br>
-        <textarea name='content' placeholder='متن' required></textarea><br><br>
-        <button type='submit'>ذخیره</button>
-    </form>
+    return STYLE + """
+    <div class='box'>
+        <h1>پست جدید</h1>
+        <form method='POST'>
+            <input name='title' placeholder='عنوان' required><br><br>
+            <textarea name='content' placeholder='متن' required></textarea><br><br>
+            <button type='submit'>ذخیره</button>
+        </form>
+    </div>
     """
 
 
@@ -158,13 +190,15 @@ def admin_edit(pid):
         if t and c:
             update_post(pid, t, c)
             return redirect("/admin/posts")
-    return """
-    <h1>ویرایش پست</h1>
-    <form method='POST'>
-        <input name='title' value='""" + p[1] + """' required><br><br>
-        <textarea name='content' required>""" + p[2] + """</textarea><br><br>
-        <button type='submit'>ذخیره</button>
-    </form>
+    return STYLE + """
+    <div class='box'>
+        <h1>ویرایش پست</h1>
+        <form method='POST'>
+            <input name='title' value='""" + p[1] + """' required><br><br>
+            <textarea name='content' required>""" + p[2] + """</textarea><br><br>
+            <button type='submit'>ذخیره</button>
+        </form>
+    </div>
     """
 
 
