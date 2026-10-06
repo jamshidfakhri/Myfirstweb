@@ -17,14 +17,12 @@ GMAIL_APP_PASSWORD = os.environ.get("GMAIL_APP_PASSWORD", "")
 NOTIFY_EMAIL = os.environ.get("NOTIFY_EMAIL", "")
 DB_NAME = "site_data.db"
 
-# ============ آدرس مرکز ============
 CENTER_ADDRESS = "کرمان، خیابان خواجو"
 CENTER_LAT = "30.2802837"
 CENTER_LNG = "57.0492426"
 
-# ============ آیدی روبیکا و ایتا ============
-RUBIKA_USERNAME = "markaz_motalae"   # یوزرنیم روبیکا رو اینجا بذار
-EITAA_USERNAME = "markaz_motalae"    # یوزرنیم ایتا رو اینجا بذار
+RUBIKA_USERNAME = "markaz_motalae"
+EITAA_USERNAME = "markaz_motalae"
 
 
 def init_db():
@@ -170,14 +168,14 @@ def render_page(title, content):
 
 
 FAQ_ITEMS = [
-    ("شهریه چقدر است؟", "شهریه بر اساس نوع اتاق و مدت اقامت متفاوت است. برای اطلاع از قیمت دقیق، با ما تماس بگیرید یا فرم ثبت‌نام را پر کنید."),
+    ("شهریه چقدر است؟", "شهریه بر اساس نوع اتاق و مدت اقامت متفاوت است."),
     ("ساعت ورود و خروج چگونه است؟", "پذیرش دانش‌آموزان روزهای شنبه تا چهارشنبه از ساعت ۱۴ تا ۲۰ است."),
-    ("آیا وعده‌های غذایی شامل شهریه می‌شود؟", "بله، سه وعده‌ی غذایی به همراه میان‌وعده زیر نظر متخصص تغذیه ارائه می‌شود."),
-    ("اتاق‌ها چند نفره هستند؟", "اتاق‌ها به دو صورت دو نفره و چهار نفره موجود هستند."),
-    ("آیا اینترنت و فضای مطالعه وجود دارد؟", "بله، اینترنت پرسرعت و سالن‌های مطالعه‌ی مجهز در اختیار دانش‌آموزان قرار می‌گیرد."),
-    ("اگر دانش‌آموز مریض شود چه می‌شود؟", "بلافاصله به والدین اطلاع داده می‌شود و در صورت نیاز به پزشک ارجاع داده خواهد شد."),
-    ("آیا امکان بازدید از مرکز وجود دارد؟", "بله، والدین می‌توانند با هماهنگی قبلی از مرکز بازدید کنند."),
-    ("چه مدارکی برای ثبت‌نام لازم است؟", "کپی شناسنامه، کارت ملی والدین، دو قطعه عکس و آخرین کارنامه‌ی تحصیلی."),
+    ("آیا وعده‌های غذایی شامل شهریه می‌شود؟", "بله، سه وعده‌ی غذایی به همراه میان‌وعده ارائه می‌شود."),
+    ("اتاق‌ها چند نفره هستند؟", "اتاق‌ها دو نفره و چهار نفره موجود هستند."),
+    ("آیا اینترنت و فضای مطالعه وجود دارد؟", "بله، اینترنت پرسرعت و سالن‌های مطالعه‌ی مجهز موجود است."),
+    ("اگر دانش‌آموز مریض شود چه می‌شود؟", "بلافاصله به والدین اطلاع داده می‌شود و به پزشک ارجاع داده می‌شود."),
+    ("آیا امکان بازدید از مرکز وجود دارد؟", "بله، والدین می‌توانند با هماهنگی قبلی بازدید کنند."),
+    ("چه مدارکی برای ثبت‌نام لازم است؟", "کپی شناسنامه، کارت ملی والدین، دو قطعه عکس و آخرین کارنامه."),
 ]
 
 
@@ -207,7 +205,6 @@ def build_location_html():
                  + "&layer=mapnik&marker=" + CENTER_LAT + "," + CENTER_LNG)
     neshan_url = "https://neshan.org/maps/@" + CENTER_LAT + "," + CENTER_LNG + ",16z"
     balad_url = "https://balad.ir/location?latitude=" + CENTER_LAT + "&longitude=" + CENTER_LNG + "&zoom=16"
-
     html = "<h1>آدرس و لوکیشن</h1>"
     html += "<p class='muted'>برای بازدید حضوری، از آدرس زیر استفاده کنید.</p>"
     html += "<div style='margin-top:24px;border:1px solid var(--line);background:var(--card);'>"
@@ -216,15 +213,10 @@ def build_location_html():
     html += "<div style='margin-top:20px;padding:20px;border:1px solid var(--line);background:var(--cream);'>"
     html += "<p style='font-weight:700;color:var(--brass);margin-bottom:10px;'>📍 آدرس:</p>"
     html += "<p style='margin-bottom:16px;'>" + CENTER_ADDRESS + "</p>"
-    html += "<p style='font-weight:700;color:var(--brass);margin-bottom:10px;'>🧭 مسیریابی با:</p>"
     html += "<div style='display:flex;gap:8px;flex-wrap:wrap;'>"
     html += "<a href='" + neshan_url + "' target='_blank' class='btn'>نشان</a>"
     html += "<a href='" + balad_url + "' target='_blank' class='btn ghost'>بلد</a>"
     html += "</div>"
-    html += "</div>"
-    html += "<div style='margin-top:30px;text-align:center;'>"
-    html += "<a href='/register' class='btn'>ثبت‌نام</a> "
-    html += "<a href='/contact' class='btn ghost'>تماس با ما</a>"
     html += "</div>"
     return html
 
@@ -275,42 +267,36 @@ def consultation():
         phone = request.form.get("phone", "").strip()
         best_time = request.form.get("best_time", "").strip()
         notes = request.form.get("notes", "").strip()
-
         if not name or not phone:
             return render_page("خطا", "<h1>خطا</h1><p>لطفاً نام و شماره تماس را وارد کنید.</p><p><a href='/consultation'>برگرد</a></p>")
-
         save_consultation(name, phone, best_time, notes)
-
         msg = "🔔 درخواست مشاوره‌ی رایگان\n\n"
         msg += "نام: " + name + "\n"
-        msg += "شماره تماس: " + phone + "\n"
+        msg += "شماره: " + phone + "\n"
         msg += "ساعت مناسب: " + (best_time if best_time else "فرقی نمی‌کنه")
         if notes:
             msg += "\nتوضیحات: " + notes
-
         send_to_telegram(msg)
         send_email("درخواست مشاوره: " + name, msg)
-
-        return render_page("ثبت شد", "<h1>درخواستت ثبت شد ✅</h1><p>ممنون " + name + " عزیز! کارشناسان ما در اولین فرصت با شما تماس می‌گیرند.</p><p><a href='/'>برگرد به خانه</a></p>")
-
+        return render_page("ثبت شد", "<h1>درخواستت ثبت شد ✅</h1><p>ممنون " + name + " عزیز! در اولین فرصت با شما تماس می‌گیریم.</p><p><a href='/'>برگرد به خانه</a></p>")
     form = "<h1>مشاوره‌ی رایگان</h1>"
-    form += "<p class='muted'>اطلاعاتت رو وارد کن، کارشناسان ما در سریع‌ترین زمان با شما تماس می‌گیرن. این مشاوره کاملاً رایگانه.</p>"
+    form += "<p class='muted'>اطلاعاتت رو وارد کن، کارشناسان ما در سریع‌ترین زمان با شما تماس می‌گیرن.</p>"
     form += "<form method='POST' style='margin-top:20px;'>"
     form += "<label>نام و نام خانوادگی *</label><input name='name' required>"
-    form += "<label>شماره تماس *</label><input name='phone' type='tel' required placeholder='مثلاً: ۰۹۱۲۳۴۵۶۷۸۹'>"
+    form += "<label>شماره تماس *</label><input name='phone' type='tel' required>"
     form += "<label>چه ساعتی تماس بگیریم؟</label>"
     form += "<select name='best_time' style='width:100%;padding:13px 16px;border:2px solid var(--line);border-radius:10px;font-size:16px;font-family:inherit;margin-bottom:15px;background:var(--card);color:var(--ink);'>"
-    form += "<option value='صبح (۹ تا ۱۲)'>صبح (۹ تا ۱۲)</option>"
-    form += "<option value='بعدازظهر (۱۲ تا ۱۷)'>بعدازظهر (۱۲ تا ۱۷)</option>"
-    form += "<option value='عصر (۱۷ تا ۲۱)'>عصر (۱۷ تا ۲۱)</option>"
-    form += "<option value='فرقی نمی‌کنه'>فرقی نمی‌کنه</option>"
+    form += "<option>صبح (۹ تا ۱۲)</option>"
+    form += "<option>بعدازظهر (۱۲ تا ۱۷)</option>"
+    form += "<option>عصر (۱۷ تا ۲۱)</option>"
+    form += "<option>فرقی نمی‌کنه</option>"
     form += "</select>"
-    form += "<label>توضیحات (اختیاری)</label><textarea name='notes' placeholder='اگه سوال خاصی داری، اینجا بنویس'></textarea>"
+    form += "<label>توضیحات (اختیاری)</label><textarea name='notes'></textarea>"
     form += "<button type='submit' class='btn'>درخواست مشاوره</button>"
     form += "</form>"
     form += "<div style='margin-top:30px;padding-top:24px;border-top:1px solid var(--line);text-align:center;'>"
     form += "<p class='muted' style='margin-bottom:16px;'>یا مستقیم پیام بده:</p>"
-    form += "<a href='https://rubika.ir/" + RUBIKA_USERNAME + "' class='btn' style='background:#e91e63;border-color:#c2185b;'>💬 روبیکا</a> "
+    form += "<a href='https://rubika.ir/" + RUBIKA_USERNAME + "' class='btn'>💬 روبیکا</a> "
     form += "<a href='https://eitaa.com/" + EITAA_USERNAME + "' class='btn ghost'>💬 ایتا</a>"
     form += "</div>"
     return render_page("مشاوره‌ی رایگان", form)
@@ -324,30 +310,23 @@ def register():
         grade = request.form.get("grade", "").strip()
         phone = request.form.get("phone", "").strip()
         notes = request.form.get("notes", "").strip()
-
         if not name or not age or not grade or not phone:
-            return render_page("خطا", "<h1>خطا</h1><p>لطفاً فیلدهای ضروری را پر کنید.</p><p><a href='/register'>برگرد</a></p>")
-
+            return render_page("خطا", "<h1>خطا</h1><p>لطفاً همه‌ی فیلدها را پر کنید.</p><p><a href='/register'>برگرد</a></p>")
         save_registration(name, age, grade, phone, notes)
-
-        msg = "ثبت‌نام جدید در سایت\n\nنام: " + name + "\nسن: " + age + "\nپایه: " + grade + "\nتلفن: " + phone
+        msg = "ثبت‌نام جدید\n\nنام: " + name + "\nسن: " + age + "\nپایه: " + grade + "\nتلفن: " + phone
         if notes:
             msg += "\nتوضیحات: " + notes
-
         send_to_telegram(msg)
         send_email("ثبت‌نام جدید: " + name, msg)
-
-        return render_page("ثبت‌نام موفق", "<h1>ثبت‌نام انجام شد ✅</h1><p>ممنون " + name + " عزیز! به زودی با شما تماس می‌گیریم.</p><p><a href='/'>برگرد به خانه</a></p>")
-
+        return render_page("ثبت‌نام موفق", "<h1>ثبت‌نام انجام شد ✅</h1><p>ممنون " + name + " عزیز!</p><p><a href='/'>برگرد</a></p>")
     form = "<h1>فرم ثبت‌نام</h1>"
-    form += "<p class='muted'>لطفاً اطلاعات زیر را کامل کنید.</p>"
     form += "<form method='POST' style='margin-top:20px;'>"
-    form += "<label>نام و نام خانوادگی دانش‌آموز *</label><input name='name' required>"
-    form += "<label>سن *</label><input name='age' type='number' min='8' max='25' required>"
-    form += "<label>پایه‌ی تحصیلی *</label><input name='grade' placeholder='مثلاً: دهم' required>"
+    form += "<label>نام دانش‌آموز *</label><input name='name' required>"
+    form += "<label>سن *</label><input name='age' type='number' required>"
+    form += "<label>پایه‌ی تحصیلی *</label><input name='grade' required>"
     form += "<label>شماره تلفن والدین *</label><input name='phone' type='tel' required>"
-    form += "<label>توضیحات (اختیاری)</label><textarea name='notes'></textarea>"
-    form += "<button type='submit' class='btn'>ارسال فرم</button>"
+    form += "<label>توضیحات</label><textarea name='notes'></textarea>"
+    form += "<button type='submit' class='btn'>ارسال</button>"
     form += "</form>"
     return render_page("ثبت‌نام", form)
 
@@ -357,7 +336,7 @@ def blog():
     posts = get_all_posts()
     html = "<h1>وبلاگ</h1>"
     if not posts:
-        html += "<p class='muted'>هنوز پستی نوشته نشده.</p>"
+        html += "<p class='muted'>هنوز پستی نیست.</p>"
     for p in posts:
         html += "<div class='post'><h2><a href='/blog/" + str(p[0]) + "'>" + p[1] + "</a></h2><p class='muted'>" + p[2][:150] + "...</p></div>"
     return render_page("وبلاگ", html)
@@ -367,8 +346,8 @@ def blog():
 def blog_post(pid):
     p = get_post(pid)
     if not p:
-        return render_page("پیدا نشد", "<h1>پست پیدا نشد</h1><p><a href='/blog'>برگرد</a></p>"), 404
-    html = "<h1>" + p[1] + "</h1><p class='muted'><a href='/blog'>← برگرد به وبلاگ</a></p><hr><p>" + p[2] + "</p>"
+        return render_page("پیدا نشد", "<h1>پیدا نشد</h1><p><a href='/blog'>برگرد</a></p>"), 404
+    html = "<h1>" + p[1] + "</h1><p class='muted'><a href='/blog'>← برگرد</a></p><hr><p>" + p[2] + "</p>"
     return render_page(p[1], html)
 
 
@@ -395,8 +374,6 @@ def admin_posts():
         return redirect("/admin/login")
     posts = get_all_posts()
     html = "<h1>مدیریت</h1><p><a href='/admin/posts/new'>➕ پست جدید</a> | <a href='/admin/registrations'>📋 ثبت‌نام‌ها</a> | <a href='/admin/consultations'>💬 مشاوره‌ها</a> | <a href='/admin/logout'>خروج</a></p><hr>"
-    if not posts:
-        html += "<p class='muted'>هنوز پستی نیست.</p>"
     for p in posts:
         html += "<div class='post'><b>" + p[1] + "</b> | <a href='/admin/posts/" + str(p[0]) + "/edit'>ویرایش</a></div>"
     return render_page("مدیریت", html)
@@ -408,8 +385,6 @@ def admin_registrations():
         return redirect("/admin/login")
     regs = get_all_registrations()
     html = "<h1>ثبت‌نام‌ها</h1><p><a href='/admin/posts'>← برگرد</a></p><hr>"
-    if not regs:
-        html += "<p class='muted'>هنوز ثبت‌نامی نیومده.</p>"
     for r in regs:
         html += "<div class='post'><b>" + r[1] + "</b> (سن: " + r[2] + "، پایه: " + r[3] + ")<br>"
         html += "<span class='muted'>📞 " + r[4] + "</span><br>"
