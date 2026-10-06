@@ -8,8 +8,30 @@
 <meta name="description" content="فضای آرام برای درس خواندن پسران؛ برنامه‌ی روزانه، ثبت‌نام و تماس.">
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;600;800&display=swap" rel="stylesheet">
 <style>
-:root{--navy:#1a2b4a;--navy-deep:#0f1e38;--gold:#b8860b;--gold-light:#d4a72c;--cream:#f5f1e8;--cream-dark:#ebe4d3;--paper:#fdfbf6;--ink:#1c1c1c;--mute:#6b6354;--line:#d4c9b0}
-@media (prefers-color-scheme:dark){:root{--navy:#0d1525;--navy-deep:#070d18;--gold:#d4a72c;--gold-light:#e6be4c;--cream:#1a2236;--cream-dark:#151b2c;--paper:#0f1626;--ink:#e8e4d8;--mute:#9a928a;--line:#2c3547}}
+:root{
+  --navy:#1a2b4a;
+  --navy-deep:#0f1e38;
+  --gold:#b8860b;
+  --gold-light:#d4a72c;
+  --cream:#f5f1e8;
+  --cream-dark:#ebe4d3;
+  --paper:#fdfbf6;
+  --ink:#1c1c1c;
+  --mute:#6b6354;
+  --line:#d4c9b0;
+  --space-xs: 8px;
+  --space-sm: 16px;
+  --space-md: 28px;
+  --space-lg: 50px;
+  --space-xl: 80px;
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --navy:#0d1525;--navy-deep:#070d18;--gold:#d4a72c;--gold-light:#e6be4c;
+    --cream:#1a2236;--cream-dark:#151b2c;--paper:#0f1626;--ink:#e8e4d8;
+    --mute:#9a928a;--line:#2c3547;
+  }
+}
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
 body{font-family:Vazirmatn,Tahoma,serif;background:var(--paper);color:var(--ink);line-height:2;overflow-x:hidden}
@@ -34,7 +56,7 @@ header .wrap{display:flex;justify-content:space-between;align-items:center;heigh
 .logo{font-weight:800;font-size:1.15rem;color:var(--gold-light);display:flex;align-items:center;gap:10px;letter-spacing:.5px;transition:transform .3s}
 .logo:hover{transform:scale(1.05)}
 .logo span{font-size:1.4rem}
-nav{display:flex;gap:22px;font-size:.9rem;align-items:center}
+nav{display:flex;gap:24px;font-size:.9rem;align-items:center}
 nav a{color:#d8d2c0;position:relative;padding:6px 0;transition:color .3s}
 nav a:hover{color:var(--gold-light)}
 nav a::after{content:"";position:absolute;bottom:0;right:0;width:0;height:1px;background:var(--gold-light);transition:width .35s}
@@ -44,16 +66,48 @@ nav a:hover::after{width:100%}
 .cta-s::after{display:none}
 .cta-s:hover{background:var(--gold-light);color:var(--navy-deep)!important}
 
-.btn{position:relative;display:inline-block;background:linear-gradient(135deg,var(--navy) 0%,var(--navy-deep) 100%);color:#f5f1e8;padding:13px 32px;font-weight:600;border:1px solid var(--navy-deep);font-family:inherit;cursor:pointer;margin-bottom:8px;letter-spacing:.3px;overflow:hidden;transition:background .3s,color .3s,transform .2s,box-shadow .3s}
+/* ============ دکمه‌های یکدست ============ */
+.btn{
+  position:relative;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:170px;
+  height:50px;
+  padding:0 28px;
+  background:linear-gradient(135deg,var(--navy) 0%,var(--navy-deep) 100%);
+  color:#f5f1e8;
+  font-weight:600;
+  font-family:inherit;
+  font-size:.95rem;
+  border:1px solid var(--navy-deep);
+  cursor:pointer;
+  margin:4px;
+  letter-spacing:.3px;
+  overflow:hidden;
+  transition:background .3s,color .3s,transform .2s,box-shadow .3s;
+}
 .btn::before{content:"";position:absolute;top:0;right:-100%;width:100%;height:100%;background:linear-gradient(120deg,transparent 0%,rgba(212,167,44,.35) 50%,transparent 100%);transition:right .6s ease}
 .btn:hover::before{right:100%}
 .btn:hover{background:linear-gradient(135deg,var(--navy-deep) 0%,var(--navy) 100%);color:var(--gold-light);transform:translateY(-2px);box-shadow:0 10px 25px rgba(15,30,56,.25)}
 .btn:active{transform:translateY(0) scale(.97)}
-.btn.ghost{background:transparent;color:var(--navy);border:1px solid var(--navy);margin-inline-start:8px}
-.btn.ghost:hover{background:var(--navy);color:#f5f1e8}
-@media(prefers-color-scheme:dark){.btn{background:linear-gradient(135deg,var(--gold) 0%,var(--gold-light) 100%);color:var(--navy-deep);border-color:var(--gold)}.btn:hover{background:linear-gradient(135deg,var(--gold-light) 0%,var(--gold) 100%);color:var(--navy-deep)}.btn.ghost{color:var(--gold);border-color:var(--gold);background:transparent}.btn.ghost:hover{background:var(--gold);color:var(--navy-deep)}}
 
-.page-title{background:var(--navy-deep);color:#e8dfc4;text-align:center;padding:50px 24px 40px;border-bottom:1px solid var(--gold);position:relative;background-image:radial-gradient(circle at 20% 30%, rgba(212,167,44,.06) 0%, transparent 40%), radial-gradient(circle at 80% 70%, rgba(212,167,44,.06) 0%, transparent 40%)}
+.btn.ghost{
+  background:rgba(26,43,74,.05);
+  color:var(--navy);
+  border:2px solid var(--navy);
+}
+.btn.ghost::before{background:linear-gradient(120deg,transparent 0%,rgba(26,43,74,.12) 50%,transparent 100%)}
+.btn.ghost:hover{background:var(--navy);color:#f5f1e8}
+
+@media(prefers-color-scheme:dark){
+  .btn{background:linear-gradient(135deg,var(--gold) 0%,var(--gold-light) 100%);color:var(--navy-deep);border-color:var(--gold)}
+  .btn:hover{background:linear-gradient(135deg,var(--gold-light) 0%,var(--gold) 100%);color:var(--navy-deep)}
+  .btn.ghost{color:var(--gold);border-color:var(--gold);background:rgba(212,167,44,.08)}
+  .btn.ghost:hover{background:var(--gold);color:var(--navy-deep)}
+}
+
+.page-title{background:var(--navy-deep);color:#e8dfc4;text-align:center;padding:var(--space-lg) 24px;border-bottom:1px solid var(--gold);position:relative;background-image:radial-gradient(circle at 20% 30%, rgba(212,167,44,.06) 0%, transparent 40%), radial-gradient(circle at 80% 70%, rgba(212,167,44,.06) 0%, transparent 40%)}
 .page-title::before,.page-title::after{content:"";position:absolute;left:50%;transform:translateX(-50%);width:80px;height:2px;background:var(--gold)}
 .page-title::before{top:24px}
 .page-title::after{bottom:24px}
@@ -61,40 +115,29 @@ nav a:hover::after{width:100%}
 .page-title p{color:#c9c1a8;font-size:.95rem;max-width:600px;margin:0 auto}
 .page-title .ornament{color:var(--gold);font-size:1.4rem;display:block;margin:8px 0}
 
-/* ============ هیرو با پس‌زمینه‌ی تزئینی ============ */
-.hero-section{
-  position:relative;
-  padding:80px 0 60px;
-  background-image:
-    radial-gradient(circle at 90% 10%, rgba(184,134,11,.08) 0%, transparent 35%),
-    radial-gradient(circle at 10% 90%, rgba(26,43,74,.06) 0%, transparent 35%),
-    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><path d='M30 5 L35 25 L55 30 L35 35 L30 55 L25 35 L5 30 L25 25 Z' fill='none' stroke='%23b8860b' stroke-width='0.4' opacity='0.15'/></svg>");
-  background-size:auto, auto, 60px 60px;
-}
-.hero{display:grid;gap:50px;grid-template-columns:1.05fr .95fr;align-items:center;position:relative;z-index:1}
-@media(max-width:820px){.hero{grid-template-columns:1fr;padding:50px 0 40px;gap:36px}}
-.hero h1{font-size:clamp(1.7rem,4.2vw,2.5rem);line-height:1.7;font-weight:800;margin-bottom:18px;color:var(--gold);text-shadow:0 1px 0 rgba(0,0,0,.05)}
-.lead{color:var(--mute);margin:0 0 30px;max-width:48ch;font-size:1rem;line-height:2.1}
+.hero-section{position:relative;padding:var(--space-xl) 0 var(--space-lg);background-image:radial-gradient(circle at 90% 10%, rgba(184,134,11,.08) 0%, transparent 35%), radial-gradient(circle at 10% 90%, rgba(26,43,74,.06) 0%, transparent 35%), url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><path d='M30 5 L35 25 L55 30 L35 35 L30 55 L25 35 L5 30 L25 25 Z' fill='none' stroke='%23b8860b' stroke-width='0.4' opacity='0.15'/></svg>");background-size:auto, auto, 60px 60px}
+.hero{display:grid;gap:var(--space-lg);grid-template-columns:1.05fr .95fr;align-items:center;position:relative;z-index:1}
+@media(max-width:820px){.hero{grid-template-columns:1fr;padding:var(--space-lg) 0 var(--space-md);gap:var(--space-md)}}
+.hero h1{font-size:clamp(1.7rem,4.2vw,2.5rem);line-height:1.7;font-weight:800;margin-bottom:var(--space-sm);color:var(--gold);text-shadow:0 1px 0 rgba(0,0,0,.05)}
+.lead{color:var(--mute);margin:0 0 var(--space-md);max-width:48ch;font-size:1rem;line-height:2.1}
 
 .sched{background:var(--cream);border:1px solid var(--line);padding:0;position:relative}
 .sched::before{content:"";position:absolute;inset:6px;border:1px solid var(--gold);opacity:.4;pointer-events:none}
-.sched-inner{padding:28px 30px}
-.sched h2{font-size:1.15rem;margin-bottom:16px;color:var(--navy);display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:.3px;border-bottom:1px solid var(--line);padding-bottom:12px}
+.sched-inner{padding:var(--space-md) 30px}
+.sched h2{font-size:1.15rem;margin-bottom:var(--space-sm);color:var(--navy);display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:.3px;border-bottom:1px solid var(--line);padding-bottom:12px}
 .sched ul{list-style:none}
 .sched li{display:flex;gap:16px;padding:9px 0;border-top:1px dashed var(--line);font-size:.94rem}
 .sched li:first-of-type{border-top:0}
 .sched time{min-width:88px;color:var(--gold);font-weight:700;letter-spacing:.5px}
 
-/* ============ جداکننده‌ی تزئینی ============ */
-.divider{display:flex;align-items:center;justify-content:center;gap:16px;margin:20px auto;max-width:400px}
+.divider{display:flex;align-items:center;justify-content:center;gap:16px;margin:var(--space-md) auto;max-width:400px}
 .divider .line{flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
 .divider .ornament{color:var(--gold);font-size:1.1rem;letter-spacing:6px}
 
-/* ============ آمار ============ */
-.stats{padding:60px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);margin:30px 0;background:var(--cream-dark)}
+.stats{padding:var(--space-lg) 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);margin:var(--space-md) 0;background:var(--cream-dark)}
 .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0}
 @media(max-width:700px){.stats-grid{grid-template-columns:repeat(2,1fr)}}
-.stat{text-align:center;padding:28px 14px;border-left:1px solid var(--line);transition:background .35s,transform .35s}
+.stat{text-align:center;padding:var(--space-md) 14px;border-left:1px solid var(--line);transition:background .35s,transform .35s}
 .stat:last-child{border-left:0}
 @media(max-width:700px){.stat:nth-child(2n){border-left:0}.stat:nth-child(n+3){border-top:1px solid var(--line)}}
 .stat:hover{background:var(--cream);transform:translateY(-3px)}
@@ -103,16 +146,16 @@ nav a:hover::after{width:100%}
 .stat .lbl{color:var(--mute);font-size:.85rem;margin-top:6px;letter-spacing:.3px}
 @media(prefers-color-scheme:dark){.stat .num{color:var(--gold-light)}}
 
-/* ============ امکانات ============ */
-.features{padding:70px 0}
-.section-head{text-align:center;margin-bottom:40px}
+.features{padding:var(--space-lg) 0}
+.section-head{text-align:center;margin-bottom:var(--space-lg)}
 .section-head .ornament{color:var(--gold);font-size:1.5rem;display:block;margin-bottom:10px;letter-spacing:8px}
-.section-head h2{font-size:1.6rem;color:var(--navy);font-weight:800;letter-spacing:.3px}
-.section-head p{color:var(--mute);margin-top:10px;font-size:.95rem}
+.section-head h2{font-size:1.6rem;color:var(--navy);font-weight:800;letter-spacing:.3px;margin-bottom:10px}
+.section-head p{color:var(--mute);font-size:.95rem;max-width:550px;margin:0 auto}
 @media(prefers-color-scheme:dark){.section-head h2{color:var(--gold-light)}}
+
 .feature-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:0;border-top:1px solid var(--line);border-right:1px solid var(--line)}
 @media(max-width:600px){.feature-grid{border-right:0}}
-.feature{background:var(--paper);border-bottom:1px solid var(--line);border-left:1px solid var(--line);padding:36px 28px;text-align:center;transition:background .35s;position:relative;overflow:hidden}
+.feature{background:var(--paper);border-bottom:1px solid var(--line);border-left:1px solid var(--line);padding:var(--space-md) 28px;text-align:center;transition:background .35s;position:relative;overflow:hidden}
 .feature::after{content:"";position:absolute;inset:10px;border:1px solid var(--gold);opacity:0;transition:opacity .35s;pointer-events:none}
 .feature:hover::after{opacity:.35}
 .feature::before{content:"";position:absolute;top:0;right:0;width:0;height:2px;background:var(--gold);transition:width .4s}
@@ -124,43 +167,25 @@ nav a:hover::after{width:100%}
 .feature p{color:var(--mute);font-size:.9rem;line-height:2}
 @media(prefers-color-scheme:dark){.feature h3{color:var(--gold-light)}}
 
-/* ============ مراحل ثبت‌نام ============ */
-.steps{padding:70px 0;border-top:1px solid var(--line)}
-.steps-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0;position:relative;margin-top:20px}
-@media(max-width:800px){.steps-grid{grid-template-columns:repeat(2,1fr);gap:30px 0}}
-@media(max-width:480px){.steps-grid{grid-template-columns:1fr;gap:30px}}
+.steps{padding:var(--space-lg) 0;border-top:1px solid var(--line)}
+.steps-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0;position:relative;margin-top:var(--space-md)}
+@media(max-width:800px){.steps-grid{grid-template-columns:repeat(2,1fr);gap:var(--space-md) 0}}
+@media(max-width:480px){.steps-grid{grid-template-columns:1fr;gap:var(--space-md)}}
 .step{text-align:center;padding:0 16px;position:relative}
-.step-num{
-  width:60px;height:60px;border-radius:50%;
-  background:var(--navy);color:var(--gold-light);
-  display:flex;align-items:center;justify-content:center;
-  font-size:1.5rem;font-weight:800;
-  margin:0 auto 18px;
-  border:2px solid var(--gold);
-  position:relative;z-index:2;
-  transition:transform .3s, box-shadow .3s;
-}
+.step-num{width:60px;height:60px;border-radius:50%;background:var(--navy);color:var(--gold-light);display:flex;align-items:center;justify-content:center;font-size:1.5rem;font-weight:800;margin:0 auto 18px;border:2px solid var(--gold);position:relative;z-index:2;transition:transform .3s,box-shadow .3s}
 .step:hover .step-num{transform:scale(1.1);box-shadow:0 10px 25px rgba(184,134,11,.3)}
-.step .step-ico{font-size:28px;display:block;margin-bottom:14px;color:var(--gold)}
 .step h3{color:var(--navy);font-size:1rem;font-weight:800;margin-bottom:8px}
 .step p{color:var(--mute);font-size:.88rem;line-height:2}
 @media(prefers-color-scheme:dark){.step h3{color:var(--gold-light)}}
 
 @media(min-width:801px){
-  .step:not(:last-child)::after{
-    content:"";position:absolute;top:30px;left:-8px;right:calc(50% + 30px);
-    height:1px;background:repeating-linear-gradient(90deg,var(--gold) 0 6px,transparent 6px 12px);opacity:.4;
-  }
-  .step:not(:first-child)::before{
-    content:"";position:absolute;top:30px;left:calc(50% + 30px);right:-8px;
-    height:1px;background:repeating-linear-gradient(90deg,var(--gold) 0 6px,transparent 6px 12px);opacity:.4;
-  }
+  .step:not(:last-child)::after{content:"";position:absolute;top:30px;left:-8px;right:calc(50% + 30px);height:1px;background:repeating-linear-gradient(90deg,var(--gold) 0 6px,transparent 6px 12px);opacity:.4}
+  .step:not(:first-child)::before{content:"";position:absolute;top:30px;left:calc(50% + 30px);right:-8px;height:1px;background:repeating-linear-gradient(90deg,var(--gold) 0 6px,transparent 6px 12px);opacity:.4}
 }
 
-/* ============ نظرات والدین ============ */
-.testimonials{padding:70px 0;border-top:1px solid var(--line)}
-.testi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px;margin-top:20px}
-.testi-card{background:var(--cream);border:1px solid var(--line);padding:30px 26px;position:relative;transition:transform .35s,box-shadow .35s,border-color .35s}
+.testimonials{padding:var(--space-lg) 0;border-top:1px solid var(--line)}
+.testi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px;margin-top:var(--space-md)}
+.testi-card{background:var(--cream);border:1px solid var(--line);padding:var(--space-md) 26px;position:relative;transition:transform .35s,box-shadow .35s,border-color .35s}
 .testi-card::before{content:"";position:absolute;top:-1px;right:-1px;left:-1px;height:3px;background:linear-gradient(90deg,var(--gold),transparent);opacity:0;transition:opacity .35s}
 .testi-card:hover::before{opacity:1}
 .testi-card:hover{transform:translateY(-5px);box-shadow:0 15px 35px rgba(15,30,56,.12);border-color:var(--gold)}
@@ -173,42 +198,33 @@ nav a:hover::after{width:100%}
 .testi-role{color:var(--mute);font-size:.8rem}
 @media(prefers-color-scheme:dark){.testi-name{color:var(--gold-light)}}
 
-/* ============ بخش تماس با قاب طلایی ============ */
-.cta-wrapper{padding:60px 0;position:relative}
-.cta-band{
-  background:var(--navy);color:#e8dfc4;padding:60px 50px;text-align:center;
-  position:relative;
-  border:2px solid var(--gold);
-}
-.cta-band::before{
-  content:"";position:absolute;inset:10px;border:1px solid var(--gold);opacity:.6;pointer-events:none;
-}
-.cta-band::after{
-  content:"";position:absolute;inset:-8px;border:1px solid var(--gold);opacity:.3;pointer-events:none;
-}
+.cta-wrapper{padding:var(--space-lg) 0;position:relative}
+.cta-band{background:var(--navy);color:#e8dfc4;padding:var(--space-lg) 40px;text-align:center;position:relative;border:2px solid var(--gold);max-width:800px;margin:0 auto}
+.cta-band::before{content:"";position:absolute;inset:10px;border:1px solid var(--gold);opacity:.6;pointer-events:none}
+.cta-band::after{content:"";position:absolute;inset:-8px;border:1px solid var(--gold);opacity:.3;pointer-events:none}
 .cta-corner{position:absolute;font-size:1.6rem;color:var(--gold);line-height:1}
-.cta-corner.tl{top:-14px;right:-14px;transform:rotate(0deg)}
+.cta-corner.tl{top:-14px;right:-14px}
 .cta-corner.tr{top:-14px;left:-14px}
 .cta-corner.bl{bottom:-14px;right:-14px}
 .cta-corner.br{bottom:-14px;left:-14px}
 .cta-band h2{margin-bottom:14px;color:var(--gold-light);font-size:1.5rem;font-weight:800;letter-spacing:.3px;position:relative}
-.cta-band p{color:#c9c1a8;margin-bottom:28px;font-size:.98rem;position:relative}
-.cta-band .btn,.cta-band .btn.ghost{position:relative;z-index:1}
+.cta-band p{color:#c9c1a8;margin-bottom:var(--space-md);font-size:.98rem;position:relative}
+.cta-band .btn-wrap{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;position:relative;z-index:1}
 
-footer{background:var(--navy-deep);color:#c9c1a8;padding:60px 24px 0;font-size:.9rem;border-top:3px double var(--gold)}
-.foot-grid{max-width:1040px;margin:0 auto;display:grid;grid-template-columns:1.6fr 1fr 1.4fr;gap:50px;padding-bottom:40px}
-@media(max-width:760px){.foot-grid{grid-template-columns:1fr;gap:36px;text-align:center}}
-.foot-col h3{color:var(--gold-light);font-size:1rem;margin-bottom:18px;font-weight:800;letter-spacing:.5px;position:relative;padding-bottom:10px}
+footer{background:var(--navy-deep);color:#c9c1a8;padding:var(--space-lg) 24px 0;font-size:.9rem;border-top:3px double var(--gold)}
+.foot-grid{max-width:1040px;margin:0 auto;display:grid;grid-template-columns:1.6fr 1fr 1.4fr;gap:var(--space-lg);padding-bottom:var(--space-md)}
+@media(max-width:760px){.foot-grid{grid-template-columns:1fr;gap:var(--space-md);text-align:center}}
+.foot-col h3{color:var(--gold-light);font-size:1.05rem;margin-bottom:18px;font-weight:800;letter-spacing:.5px;position:relative;padding-bottom:10px}
 .foot-col h3::after{content:"";position:absolute;bottom:0;right:0;width:36px;height:1px;background:var(--gold)}
 @media(max-width:760px){.foot-col h3::after{right:50%;transform:translateX(50%)}}
-.foot-col p{line-height:2.1;font-size:.88rem}
+.foot-col p{line-height:2.1;font-size:.9rem}
 .foot-col ul{list-style:none}
-.foot-col ul li{margin-bottom:10px;position:relative;padding-right:14px}
-.foot-col ul li::before{content:"◈";position:absolute;right:0;color:var(--gold);font-size:.7rem;top:6px}
+.foot-col ul li{margin-bottom:12px;position:relative;padding-right:14px;font-size:.9rem}
+.foot-col ul li::before{content:"◈";position:absolute;right:0;color:var(--gold);font-size:.75rem;top:6px}
 @media(max-width:760px){.foot-col ul li{padding-right:0}.foot-col ul li::before{display:none}}
 .foot-col a{color:#c9c1a8;transition:color .3s}
 .foot-col a:hover{color:var(--gold-light)}
-.foot-bottom{border-top:1px solid #2c3547;text-align:center;padding:22px 0;font-size:.82rem;color:#8a8374;letter-spacing:.3px}
+.foot-bottom{border-top:1px solid #2c3547;text-align:center;padding:22px 0;font-size:.85rem;color:#8a8374;letter-spacing:.3px}
 
 #toTop{position:fixed;bottom:30px;left:30px;width:46px;height:46px;background:var(--navy);color:var(--gold-light);border:1px solid var(--gold);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;opacity:0;visibility:hidden;transform:translateY(20px);transition:opacity .35s,transform .35s,visibility .35s,background .25s;z-index:900}
 #toTop.show{opacity:1;visibility:visible;transform:translateY(0)}
@@ -240,7 +256,6 @@ footer{background:var(--navy-deep);color:#c9c1a8;padding:60px 24px 0;font-size:.
       <a href="#steps">مراحل ثبت‌نام</a>
       <a href="#testimonials">نظرات</a>
       <a href="/faq">سوالات</a>
-      <a href="/location">آدرس</a>
       <a href="/register" class="cta-s">ثبت‌نام</a>
     </nav>
   </div>
@@ -313,26 +328,10 @@ footer{background:var(--navy-deep);color:#c9c1a8;padding:60px 24px 0;font-size:.
       <p>در چهار قدم ساده، فرزندتان را ثبت‌نام کنید</p>
     </div>
     <div class="steps-grid">
-      <div class="step reveal">
-        <div class="step-num">۱</div>
-        <h3>فرم آنلاین</h3>
-        <p>اطلاعات فرزندتان را در فرم سایت وارد کنید.</p>
-      </div>
-      <div class="step reveal reveal-delay-1">
-        <div class="step-num">۲</div>
-        <h3>تماس ما</h3>
-        <p>کارشناسان ما در کمتر از ۲۴ ساعت با شما تماس می‌گیرند.</p>
-      </div>
-      <div class="step reveal reveal-delay-2">
-        <div class="step-num">۳</div>
-        <h3>بازدید حضوری</h3>
-        <p>از مرکز بازدید کنید و از نزدیک با فضا آشنا شوید.</p>
-      </div>
-      <div class="step reveal reveal-delay-3">
-        <div class="step-num">۴</div>
-        <h3>ثبت‌نام نهایی</h3>
-        <p>مدارک را تکمیل کنید و فرزندتان مهمان ما می‌شود.</p>
-      </div>
+      <div class="step reveal"><div class="step-num">۱</div><h3>فرم آنلاین</h3><p>اطلاعات فرزندتان را در فرم سایت وارد کنید.</p></div>
+      <div class="step reveal reveal-delay-1"><div class="step-num">۲</div><h3>تماس ما</h3><p>کارشناسان ما در کمتر از ۲۴ ساعت با شما تماس می‌گیرند.</p></div>
+      <div class="step reveal reveal-delay-2"><div class="step-num">۳</div><h3>بازدید حضوری</h3><p>از مرکز بازدید کنید و از نزدیک با فضا آشنا شوید.</p></div>
+      <div class="step reveal reveal-delay-3"><div class="step-num">۴</div><h3>ثبت‌نام نهایی</h3><p>مدارک را تکمیل کنید و فرزندتان مهمان ما می‌شود.</p></div>
     </div>
   </section>
 
@@ -347,37 +346,19 @@ footer{background:var(--navy-deep);color:#c9c1a8;padding:60px 24px 0;font-size:.
         <div class="testi-quote">"</div>
         <div class="testi-text">پسرم از وقتی اومده اینجا، هم درسش خیلی بهتر شده، هم از نظر رفتاری پیشرفت کرده. محیطش خیلی آرام و منظمه.</div>
         <div class="testi-stars">★★★★★</div>
-        <div class="testi-author">
-          <div class="testi-avatar">ر</div>
-          <div>
-            <div class="testi-name">رضا محمدی</div>
-            <div class="testi-role">پدر دانش‌آموز پایه دهم</div>
-          </div>
-        </div>
+        <div class="testi-author"><div class="testi-avatar">ر</div><div><div class="testi-name">رضا محمدی</div><div class="testi-role">پدر دانش‌آموز پایه دهم</div></div></div>
       </div>
       <div class="testi-card reveal reveal-delay-1">
         <div class="testi-quote">"</div>
-        <div class="testi-text">مشاورها خیلی دلسوزانه با بچه‌ها برخورد می‌کنن. هر هفته گزارش پیشرفت پسرم رو بهم می‌دن. از این بابت خیلی راضی‌ام.</div>
+        <div class="testi-text">مشاورها خیلی دلسوزانه با بچه‌ها برخورد می‌کنن. هر هفته گزارش پیشرفت پسرم رو بهم می‌دن.</div>
         <div class="testi-stars">★★★★★</div>
-        <div class="testi-author">
-          <div class="testi-avatar">ف</div>
-          <div>
-            <div class="testi-name">فاطمه احمدی</div>
-            <div class="testi-role">مادر دانش‌آموز پایه یازدهم</div>
-          </div>
-        </div>
+        <div class="testi-author"><div class="testi-avatar">ف</div><div><div class="testi-name">فاطمه احمدی</div><div class="testi-role">مادر دانش‌آموز پایه یازدهم</div></div></div>
       </div>
       <div class="testi-card reveal reveal-delay-2">
         <div class="testi-quote">"</div>
-        <div class="testi-text">غذاشون عالیه، محیطش امنه و پسرم از صبح تا شب با انگیزه درس می‌خونه. حتماً به همه‌ی دوستام پیشنهادش می‌دم.</div>
+        <div class="testi-text">غذاشون عالیه، محیطش امنه و پسرم از صبح تا شب با انگیزه درس می‌خونه.</div>
         <div class="testi-stars">★★★★★</div>
-        <div class="testi-author">
-          <div class="testi-avatar">م</div>
-          <div>
-            <div class="testi-name">محمود کریمی</div>
-            <div class="testi-role">پدر دانش‌آموز پایه دوازدهم</div>
-          </div>
-        </div>
+        <div class="testi-author"><div class="testi-avatar">م</div><div><div class="testi-name">محمود کریمی</div><div class="testi-role">پدر دانش‌آموز پایه دوازدهم</div></div></div>
       </div>
     </div>
   </section>
@@ -390,9 +371,11 @@ footer{background:var(--navy-deep);color:#c9c1a8;padding:60px 24px 0;font-size:.
       <span class="cta-corner br">✦</span>
       <h2>آماده‌ی شروع هستید؟</h2>
       <p>همین حالا فرم ثبت‌نام را پر کنید یا با ما تماس بگیرید.</p>
-      <a href="/register" class="btn">ثبت‌نام</a>
-      <a href="tel:+989931783620" class="btn ghost">تماس</a>
-      <a href="/location" class="btn ghost">آدرس ما</a>
+      <div class="btn-wrap">
+        <a href="/register" class="btn">ثبت‌نام</a>
+        <a href="tel:+989931783620" class="btn ghost">تماس</a>
+        <a href="/location" class="btn ghost">آدرس ما</a>
+      </div>
     </div>
   </div>
 </main>
@@ -409,6 +392,7 @@ footer{background:var(--navy-deep);color:#c9c1a8;padding:60px 24px 0;font-size:.
         <li><a href="/">خانه</a></li>
         <li><a href="/faq">سوالات متداول</a></li>
         <li><a href="/location">آدرس و لوکیشن</a></li>
+        <li><a href="/contact">تماس با ما</a></li>
         <li><a href="/blog">وبلاگ</a></li>
         <li><a href="/register">ثبت‌نام</a></li>
         <li><a href="/admin/login">ورود مدیریت</a></li>
@@ -421,9 +405,7 @@ footer{background:var(--navy-deep);color:#c9c1a8;padding:60px 24px 0;font-size:.
       <p>🕐 شنبه تا پنجشنبه، ۹ صبح تا ۶ عصر</p>
     </div>
   </div>
-  <div class="foot-bottom">
-    © ۱۴۰۴ مرکز مطالعه و پانسیون پسرانه — تمامی حقوق محفوظ است.
-  </div>
+  <div class="foot-bottom">© ۱۴۰۴ مرکز مطالعه و پانسیون پسرانه — تمامی حقوق محفوظ است.</div>
 </footer>
 
 <button id="toTop" title="برگرد به بالا">▲</button>
