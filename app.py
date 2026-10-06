@@ -21,8 +21,9 @@ CENTER_ADDRESS = "کرمان، خیابان خواجو"
 CENTER_LAT = "30.2802837"
 CENTER_LNG = "57.0492426"
 
-RUBIKA_USERNAME = "markaz_motalae"
-EITAA_USERNAME = "markaz_motalae"
+RUBIKA_USERNAME = "Jamshidfakhrii"
+EITAA_USERNAME = "Jamshidfakhrii"
+CENTER_PHONE = "09931783620"
 
 
 def init_db():
@@ -246,7 +247,7 @@ def contact():
     html = "<h1>تماس با ما</h1>"
     html += "<p class='muted'>از راه‌های زیر با ما در ارتباط باشید.</p>"
     html += "<div style='margin-top:24px;line-height:2.4;'>"
-    html += "<p>📞 تلفن: <a href='tel:+989931783620'>۰۹۹۳۱۷۸۳۶۲۰</a></p>"
+    html += "<p>📞 تلفن: <a href='tel:+98" + CENTER_PHONE[1:] + "'>۰۹۹۳۱۷۸۳۶۲۰</a></p>"
     html += "<p>✉️ ایمیل: <a href='mailto:cady1max1@gmail.com'>cady1max1@gmail.com</a></p>"
     html += "<p>📍 آدرس: " + CENTER_ADDRESS + "</p>"
     html += "<p>🕐 شنبه تا پنجشنبه، ۹ صبح تا ۶ عصر</p>"
