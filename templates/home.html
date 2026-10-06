@@ -34,12 +34,12 @@ header .wrap{display:flex;justify-content:space-between;align-items:center;heigh
 .logo{font-weight:800;font-size:1.15rem;color:var(--gold-light);display:flex;align-items:center;gap:10px;letter-spacing:.5px;transition:transform .3s}
 .logo:hover{transform:scale(1.05)}
 .logo span{font-size:1.4rem}
-nav{display:flex;gap:24px;font-size:.92rem;align-items:center}
+nav{display:flex;gap:22px;font-size:.9rem;align-items:center}
 nav a{color:#d8d2c0;position:relative;padding:6px 0;transition:color .3s}
 nav a:hover{color:var(--gold-light)}
 nav a::after{content:"";position:absolute;bottom:0;right:0;width:0;height:1px;background:var(--gold-light);transition:width .35s}
 nav a:hover::after{width:100%}
-@media(max-width:760px){nav a:not(.cta-s){display:none}}
+@media(max-width:800px){nav a:not(.cta-s){display:none}}
 .cta-s{background:var(--gold);color:var(--navy-deep)!important;padding:8px 20px;font-weight:700;letter-spacing:.3px;border:1px solid var(--gold-light)}
 .cta-s::after{display:none}
 .cta-s:hover{background:var(--gold-light);color:var(--navy-deep)!important}
@@ -53,7 +53,7 @@ nav a:hover::after{width:100%}
 .btn.ghost:hover{background:var(--navy);color:#f5f1e8}
 @media(prefers-color-scheme:dark){.btn{background:linear-gradient(135deg,var(--gold) 0%,var(--gold-light) 100%);color:var(--navy-deep);border-color:var(--gold)}.btn:hover{background:linear-gradient(135deg,var(--gold-light) 0%,var(--gold) 100%);color:var(--navy-deep)}.btn.ghost{color:var(--gold);border-color:var(--gold);background:transparent}.btn.ghost:hover{background:var(--gold);color:var(--navy-deep)}}
 
-.page-title{background:var(--navy-deep);color:#e8dfc4;text-align:center;padding:50px 24px 40px;border-bottom:1px solid var(--gold);position:relative}
+.page-title{background:var(--navy-deep);color:#e8dfc4;text-align:center;padding:50px 24px 40px;border-bottom:1px solid var(--gold);position:relative;background-image:radial-gradient(circle at 20% 30%, rgba(212,167,44,.06) 0%, transparent 40%), radial-gradient(circle at 80% 70%, rgba(212,167,44,.06) 0%, transparent 40%)}
 .page-title::before,.page-title::after{content:"";position:absolute;left:50%;transform:translateX(-50%);width:80px;height:2px;background:var(--gold)}
 .page-title::before{top:24px}
 .page-title::after{bottom:24px}
@@ -61,7 +61,17 @@ nav a:hover::after{width:100%}
 .page-title p{color:#c9c1a8;font-size:.95rem;max-width:600px;margin:0 auto}
 .page-title .ornament{color:var(--gold);font-size:1.4rem;display:block;margin:8px 0}
 
-.hero{padding:80px 0 60px;display:grid;gap:50px;grid-template-columns:1.05fr .95fr;align-items:center}
+/* ============ هیرو با پس‌زمینه‌ی تزئینی ============ */
+.hero-section{
+  position:relative;
+  padding:80px 0 60px;
+  background-image:
+    radial-gradient(circle at 90% 10%, rgba(184,134,11,.08) 0%, transparent 35%),
+    radial-gradient(circle at 10% 90%, rgba(26,43,74,.06) 0%, transparent 35%),
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'><path d='M30 5 L35 25 L55 30 L35 35 L30 55 L25 35 L5 30 L25 25 Z' fill='none' stroke='%23b8860b' stroke-width='0.4' opacity='0.15'/></svg>");
+  background-size:auto, auto, 60px 60px;
+}
+.hero{display:grid;gap:50px;grid-template-columns:1.05fr .95fr;align-items:center;position:relative;z-index:1}
 @media(max-width:820px){.hero{grid-template-columns:1fr;padding:50px 0 40px;gap:36px}}
 .hero h1{font-size:clamp(1.7rem,4.2vw,2.5rem);line-height:1.7;font-weight:800;margin-bottom:18px;color:var(--gold);text-shadow:0 1px 0 rgba(0,0,0,.05)}
 .lead{color:var(--mute);margin:0 0 30px;max-width:48ch;font-size:1rem;line-height:2.1}
@@ -75,6 +85,12 @@ nav a:hover::after{width:100%}
 .sched li:first-of-type{border-top:0}
 .sched time{min-width:88px;color:var(--gold);font-weight:700;letter-spacing:.5px}
 
+/* ============ جداکننده‌ی تزئینی ============ */
+.divider{display:flex;align-items:center;justify-content:center;gap:16px;margin:20px auto;max-width:400px}
+.divider .line{flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+.divider .ornament{color:var(--gold);font-size:1.1rem;letter-spacing:6px}
+
+/* ============ آمار ============ */
 .stats{padding:60px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);margin:30px 0;background:var(--cream-dark)}
 .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0}
 @media(max-width:700px){.stats-grid{grid-template-columns:repeat(2,1fr)}}
@@ -87,15 +103,18 @@ nav a:hover::after{width:100%}
 .stat .lbl{color:var(--mute);font-size:.85rem;margin-top:6px;letter-spacing:.3px}
 @media(prefers-color-scheme:dark){.stat .num{color:var(--gold-light)}}
 
+/* ============ امکانات ============ */
 .features{padding:70px 0}
-.section-head{text-align:center;margin-bottom:50px}
+.section-head{text-align:center;margin-bottom:40px}
 .section-head .ornament{color:var(--gold);font-size:1.5rem;display:block;margin-bottom:10px;letter-spacing:8px}
 .section-head h2{font-size:1.6rem;color:var(--navy);font-weight:800;letter-spacing:.3px}
 .section-head p{color:var(--mute);margin-top:10px;font-size:.95rem}
 @media(prefers-color-scheme:dark){.section-head h2{color:var(--gold-light)}}
 .feature-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:0;border-top:1px solid var(--line);border-right:1px solid var(--line)}
 @media(max-width:600px){.feature-grid{border-right:0}}
-.feature{background:var(--paper);border-bottom:1px solid var(--line);border-left:1px solid var(--line);padding:36px 28px;text-align:center;transition:background .35s;position:relative}
+.feature{background:var(--paper);border-bottom:1px solid var(--line);border-left:1px solid var(--line);padding:36px 28px;text-align:center;transition:background .35s;position:relative;overflow:hidden}
+.feature::after{content:"";position:absolute;inset:10px;border:1px solid var(--gold);opacity:0;transition:opacity .35s;pointer-events:none}
+.feature:hover::after{opacity:.35}
 .feature::before{content:"";position:absolute;top:0;right:0;width:0;height:2px;background:var(--gold);transition:width .4s}
 .feature:hover::before{width:100%}
 .feature:hover{background:var(--cream)}
@@ -104,6 +123,39 @@ nav a:hover::after{width:100%}
 .feature h3{color:var(--navy);margin-bottom:10px;font-size:1.05rem;font-weight:800;letter-spacing:.3px}
 .feature p{color:var(--mute);font-size:.9rem;line-height:2}
 @media(prefers-color-scheme:dark){.feature h3{color:var(--gold-light)}}
+
+/* ============ مراحل ثبت‌نام ============ */
+.steps{padding:70px 0;border-top:1px solid var(--line)}
+.steps-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0;position:relative;margin-top:20px}
+@media(max-width:800px){.steps-grid{grid-template-columns:repeat(2,1fr);gap:30px 0}}
+@media(max-width:480px){.steps-grid{grid-template-columns:1fr;gap:30px}}
+.step{text-align:center;padding:0 16px;position:relative}
+.step-num{
+  width:60px;height:60px;border-radius:50%;
+  background:var(--navy);color:var(--gold-light);
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.5rem;font-weight:800;
+  margin:0 auto 18px;
+  border:2px solid var(--gold);
+  position:relative;z-index:2;
+  transition:transform .3s, box-shadow .3s;
+}
+.step:hover .step-num{transform:scale(1.1);box-shadow:0 10px 25px rgba(184,134,11,.3)}
+.step .step-ico{font-size:28px;display:block;margin-bottom:14px;color:var(--gold)}
+.step h3{color:var(--navy);font-size:1rem;font-weight:800;margin-bottom:8px}
+.step p{color:var(--mute);font-size:.88rem;line-height:2}
+@media(prefers-color-scheme:dark){.step h3{color:var(--gold-light)}}
+
+@media(min-width:801px){
+  .step:not(:last-child)::after{
+    content:"";position:absolute;top:30px;left:-8px;right:calc(50% + 30px);
+    height:1px;background:repeating-linear-gradient(90deg,var(--gold) 0 6px,transparent 6px 12px);opacity:.4;
+  }
+  .step:not(:first-child)::before{
+    content:"";position:absolute;top:30px;left:calc(50% + 30px);right:-8px;
+    height:1px;background:repeating-linear-gradient(90deg,var(--gold) 0 6px,transparent 6px 12px);opacity:.4;
+  }
+}
 
 /* ============ نظرات والدین ============ */
 .testimonials{padding:70px 0;border-top:1px solid var(--line)}
@@ -121,12 +173,27 @@ nav a:hover::after{width:100%}
 .testi-role{color:var(--mute);font-size:.8rem}
 @media(prefers-color-scheme:dark){.testi-name{color:var(--gold-light)}}
 
-.cta-band{background:var(--navy);color:#e8dfc4;padding:60px 30px;text-align:center;margin:50px 0;position:relative}
-.cta-band::before,.cta-band::after{content:"";position:absolute;left:20%;right:20%;height:1px;background:var(--gold);opacity:.5}
-.cta-band::before{top:16px}
-.cta-band::after{bottom:16px}
-.cta-band h2{margin-bottom:14px;color:var(--gold-light);font-size:1.5rem;font-weight:800;letter-spacing:.3px}
-.cta-band p{color:#c9c1a8;margin-bottom:28px;font-size:.98rem}
+/* ============ بخش تماس با قاب طلایی ============ */
+.cta-wrapper{padding:60px 0;position:relative}
+.cta-band{
+  background:var(--navy);color:#e8dfc4;padding:60px 50px;text-align:center;
+  position:relative;
+  border:2px solid var(--gold);
+}
+.cta-band::before{
+  content:"";position:absolute;inset:10px;border:1px solid var(--gold);opacity:.6;pointer-events:none;
+}
+.cta-band::after{
+  content:"";position:absolute;inset:-8px;border:1px solid var(--gold);opacity:.3;pointer-events:none;
+}
+.cta-corner{position:absolute;font-size:1.6rem;color:var(--gold);line-height:1}
+.cta-corner.tl{top:-14px;right:-14px;transform:rotate(0deg)}
+.cta-corner.tr{top:-14px;left:-14px}
+.cta-corner.bl{bottom:-14px;right:-14px}
+.cta-corner.br{bottom:-14px;left:-14px}
+.cta-band h2{margin-bottom:14px;color:var(--gold-light);font-size:1.5rem;font-weight:800;letter-spacing:.3px;position:relative}
+.cta-band p{color:#c9c1a8;margin-bottom:28px;font-size:.98rem;position:relative}
+.cta-band .btn,.cta-band .btn.ghost{position:relative;z-index:1}
 
 footer{background:var(--navy-deep);color:#c9c1a8;padding:60px 24px 0;font-size:.9rem;border-top:3px double var(--gold)}
 .foot-grid{max-width:1040px;margin:0 auto;display:grid;grid-template-columns:1.6fr 1fr 1.4fr;gap:50px;padding-bottom:40px}
@@ -169,13 +236,11 @@ footer{background:var(--navy-deep);color:#c9c1a8;padding:60px 24px 0;font-size:.
   <div class="wrap">
     <a class="logo" href="/"><span>📖</span> مرکز مطالعه</a>
     <nav>
-      <a href="/faq">سوالات متداول</a>
       <a href="#features">امکانات</a>
+      <a href="#steps">مراحل ثبت‌نام</a>
       <a href="#testimonials">نظرات</a>
-      <a href="#schedule">برنامه</a>
-      <a href="/location">آدرس ما</a>
-      <a href="/contact">تماس</a>
-      <a href="/blog">وبلاگ</a>
+      <a href="/faq">سوالات</a>
+      <a href="/location">آدرس</a>
       <a href="/register" class="cta-s">ثبت‌نام</a>
     </nav>
   </div>
@@ -187,61 +252,47 @@ footer{background:var(--navy-deep);color:#c9c1a8;padding:60px 24px 0;font-size:.
   <p>فضایی آرام، منظم و مجهز برای پیشرفت تحصیلی دانش‌آموزان</p>
 </div>
 
-<main class="wrap">
-  <section class="hero">
-    <div class="reveal">
-      <h1>جایی برای تمرکز، آرامش و پیشرفت</h1>
-      <p class="lead">مرکز مطالعه‌ی ما با محیطی ساکت، امکانات کامل و برنامه‌ی منظم روزانه، به دانش‌آموزان پسر کمک می‌کند تا با تمرکز بیشتر به اهداف تحصیلی خود برسند.</p>
-      <a href="/register" class="btn">ثبت‌نام</a>
-      <a href="#schedule" class="btn ghost">برنامه‌ی روزانه</a>
-    </div>
-    <div class="sched reveal reveal-delay-2" id="schedule">
-      <div class="sched-inner">
-        <h2>🕰️ برنامه‌ی روزانه</h2>
-        <ul>
-          <li><time>۷:۰۰</time> بیداری و صبحانه</li>
-          <li><time>۸:۰۰</time> شروع مطالعه</li>
-          <li><time>۱۲:۳۰</time> ناهار و استراحت</li>
-          <li><time>۱۵:۰۰</time> ادامه‌ی مطالعه</li>
-          <li><time>۱۹:۰۰</time> شام و ورزش</li>
-          <li><time>۲۱:۰۰</time> مطالعه‌ی شبانه</li>
-        </ul>
+<section class="hero-section">
+  <main class="wrap">
+    <div class="hero">
+      <div class="reveal">
+        <h1>جایی برای تمرکز، آرامش و پیشرفت</h1>
+        <p class="lead">مرکز مطالعه‌ی ما با محیطی ساکت، امکانات کامل و برنامه‌ی منظم روزانه، به دانش‌آموزان پسر کمک می‌کند تا با تمرکز بیشتر به اهداف تحصیلی خود برسند.</p>
+        <a href="/register" class="btn">ثبت‌نام</a>
+        <a href="#steps" class="btn ghost">مراحل ثبت‌نام</a>
+      </div>
+      <div class="sched reveal reveal-delay-2">
+        <div class="sched-inner">
+          <h2>🕰️ برنامه‌ی روزانه</h2>
+          <ul>
+            <li><time>۷:۰۰</time> بیداری و صبحانه</li>
+            <li><time>۸:۰۰</time> شروع مطالعه</li>
+            <li><time>۱۲:۳۰</time> ناهار و استراحت</li>
+            <li><time>۱۵:۰۰</time> ادامه‌ی مطالعه</li>
+            <li><time>۱۹:۰۰</time> شام و ورزش</li>
+            <li><time>۲۱:۰۰</time> مطالعه‌ی شبانه</li>
+          </ul>
+        </div>
       </div>
     </div>
-  </section>
-</main>
+  </main>
+</section>
 
 <section class="stats">
   <div class="wrap">
     <div class="stats-grid">
-      <div class="stat reveal">
-        <span class="ico">👨‍🎓</span>
-        <div class="num" data-target="50" data-suffix="+">۰</div>
-        <div class="lbl">دانش‌آموز موفق</div>
-      </div>
-      <div class="stat reveal reveal-delay-1">
-        <span class="ico">📅</span>
-        <div class="num" data-target="10" data-suffix="">۰</div>
-        <div class="lbl">سال سابقه</div>
-      </div>
-      <div class="stat reveal reveal-delay-2">
-        <span class="ico">📚</span>
-        <div class="num" data-target="3" data-suffix="">۰</div>
-        <div class="lbl">سالن مطالعه</div>
-      </div>
-      <div class="stat reveal reveal-delay-3">
-        <span class="ico">⭐</span>
-        <div class="num" data-target="98" data-suffix="٪">۰</div>
-        <div class="lbl">رضایت والدین</div>
-      </div>
+      <div class="stat reveal"><span class="ico">👨‍🎓</span><div class="num" data-target="50" data-suffix="+">۰</div><div class="lbl">دانش‌آموز موفق</div></div>
+      <div class="stat reveal reveal-delay-1"><span class="ico">📅</span><div class="num" data-target="10" data-suffix="">۰</div><div class="lbl">سال سابقه</div></div>
+      <div class="stat reveal reveal-delay-2"><span class="ico">📚</span><div class="num" data-target="3" data-suffix="">۰</div><div class="lbl">سالن مطالعه</div></div>
+      <div class="stat reveal reveal-delay-3"><span class="ico">⭐</span><div class="num" data-target="98" data-suffix="٪">۰</div><div class="lbl">رضایت والدین</div></div>
     </div>
   </div>
 </section>
 
 <main class="wrap">
   <section class="features" id="features">
+    <div class="divider"><span class="line"></span><span class="ornament">❖ ❖ ❖</span><span class="line"></span></div>
     <div class="section-head reveal">
-      <span class="ornament">❖ ❖ ❖</span>
       <h2>چرا مرکز ما را انتخاب کنید؟</h2>
       <p>امکاناتی که تجربه‌ی تحصیلی فرزند شما را متحول می‌کند</p>
     </div>
@@ -255,9 +306,39 @@ footer{background:var(--navy-deep);color:#c9c1a8;padding:60px 24px 0;font-size:.
     </div>
   </section>
 
-  <section class="testimonials" id="testimonials">
+  <section class="steps" id="steps">
+    <div class="divider"><span class="line"></span><span class="ornament">❖ ❖ ❖</span><span class="line"></span></div>
     <div class="section-head reveal">
-      <span class="ornament">❖ ❖ ❖</span>
+      <h2>مراحل ثبت‌نام</h2>
+      <p>در چهار قدم ساده، فرزندتان را ثبت‌نام کنید</p>
+    </div>
+    <div class="steps-grid">
+      <div class="step reveal">
+        <div class="step-num">۱</div>
+        <h3>فرم آنلاین</h3>
+        <p>اطلاعات فرزندتان را در فرم سایت وارد کنید.</p>
+      </div>
+      <div class="step reveal reveal-delay-1">
+        <div class="step-num">۲</div>
+        <h3>تماس ما</h3>
+        <p>کارشناسان ما در کمتر از ۲۴ ساعت با شما تماس می‌گیرند.</p>
+      </div>
+      <div class="step reveal reveal-delay-2">
+        <div class="step-num">۳</div>
+        <h3>بازدید حضوری</h3>
+        <p>از مرکز بازدید کنید و از نزدیک با فضا آشنا شوید.</p>
+      </div>
+      <div class="step reveal reveal-delay-3">
+        <div class="step-num">۴</div>
+        <h3>ثبت‌نام نهایی</h3>
+        <p>مدارک را تکمیل کنید و فرزندتان مهمان ما می‌شود.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="testimonials" id="testimonials">
+    <div class="divider"><span class="line"></span><span class="ornament">❖ ❖ ❖</span><span class="line"></span></div>
+    <div class="section-head reveal">
       <h2>نظرات والدین</h2>
       <p>آنچه والدین درباره‌ی مرکز ما می‌گویند</p>
     </div>
@@ -276,7 +357,7 @@ footer{background:var(--navy-deep);color:#c9c1a8;padding:60px 24px 0;font-size:.
       </div>
       <div class="testi-card reveal reveal-delay-1">
         <div class="testi-quote">"</div>
-        <div class="testi-text">خانم‌های مشاوره خیلی دلسوزانه با بچه‌ها برخورد می‌کنن. هر هفته گزارش پیشرفت پسرم رو بهم می‌دن. از این بابت خیلی راضی‌ام.</div>
+        <div class="testi-text">مشاورها خیلی دلسوزانه با بچه‌ها برخورد می‌کنن. هر هفته گزارش پیشرفت پسرم رو بهم می‌دن. از این بابت خیلی راضی‌ام.</div>
         <div class="testi-stars">★★★★★</div>
         <div class="testi-author">
           <div class="testi-avatar">ف</div>
@@ -301,13 +382,19 @@ footer{background:var(--navy-deep);color:#c9c1a8;padding:60px 24px 0;font-size:.
     </div>
   </section>
 
-  <section class="cta-band reveal" id="contact">
-    <h2>آماده‌ی شروع هستید؟</h2>
-    <p>همین حالا فرم ثبت‌نام را پر کنید یا با ما تماس بگیرید.</p>
-    <a href="/register" class="btn">ثبت‌نام</a>
-    <a href="tel:+989931783620" class="btn ghost">تماس</a>
-    <a href="/location" class="btn ghost">آدرس ما</a>
-  </section>
+  <div class="cta-wrapper reveal">
+    <div class="cta-band" id="contact">
+      <span class="cta-corner tl">✦</span>
+      <span class="cta-corner tr">✦</span>
+      <span class="cta-corner bl">✦</span>
+      <span class="cta-corner br">✦</span>
+      <h2>آماده‌ی شروع هستید؟</h2>
+      <p>همین حالا فرم ثبت‌نام را پر کنید یا با ما تماس بگیرید.</p>
+      <a href="/register" class="btn">ثبت‌نام</a>
+      <a href="tel:+989931783620" class="btn ghost">تماس</a>
+      <a href="/location" class="btn ghost">آدرس ما</a>
+    </div>
+  </div>
 </main>
 
 <footer>
@@ -369,8 +456,7 @@ footer{background:var(--navy-deep);color:#c9c1a8;padding:60px 24px 0;font-size:.
         function tick(now) {
             const progress = Math.min((now - startTime) / duration, 1);
             const eased = 1 - Math.pow(1 - progress, 3);
-            const current = Math.floor(eased * target);
-            el.textContent = toPersianDigits(current) + suffix;
+            el.textContent = toPersianDigits(Math.floor(eased * target)) + suffix;
             if (progress < 1) requestAnimationFrame(tick);
             else el.textContent = toPersianDigits(target) + suffix;
         }
@@ -386,10 +472,6 @@ footer{background:var(--navy-deep);color:#c9c1a8;padding:60px 24px 0;font-size:.
             });
         }, { threshold: 0.5 });
         document.querySelectorAll('.num[data-target]').forEach(el => cObs.observe(el));
-    } else {
-        document.querySelectorAll('.num[data-target]').forEach(function(el) {
-            el.textContent = toPersianDigits(el.getAttribute('data-target')) + (el.getAttribute('data-suffix') || '');
-        });
     }
 
     const progressBar = document.getElementById('progress-bar');
