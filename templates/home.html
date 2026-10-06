@@ -76,7 +76,6 @@ nav a:hover::after{width:100%}
 .stat .lbl{color:var(--mute);font-size:.85rem;margin-top:6px}
 @media(prefers-color-scheme:dark){.stat .num{color:var(--gold-light)}}
 
-/* ============ مشاوره‌ی رایگان ============ */
 .consult{padding:60px 0;background:linear-gradient(135deg, var(--navy) 0%, var(--navy-deep) 100%);color:#e8dfc4;position:relative;overflow:hidden}
 .consult::before{content:"";position:absolute;inset:0;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'><path d='M40 10 L44 36 L70 40 L44 44 L40 70 L36 44 L10 40 L36 36 Z' fill='none' stroke='%23d4a72c' stroke-width='0.5' opacity='0.08'/></svg>");background-size:80px 80px;pointer-events:none}
 .consult-inner{position:relative;z-index:1;display:grid;grid-template-columns:1fr 1fr;gap:50px;align-items:center;max-width:1040px;margin:0 auto;padding:0 24px}
@@ -89,15 +88,9 @@ nav a:hover::after{width:100%}
 .consult-card{background:rgba(255,255,255,.04);border:1px solid var(--gold);padding:28px;position:relative;backdrop-filter:blur(8px)}
 .consult-card::before{content:"";position:absolute;inset:6px;border:1px solid var(--gold);opacity:.3;pointer-events:none}
 .consult-card h3{color:var(--gold-light);font-size:1.1rem;margin-bottom:16px;text-align:center;position:relative}
-.consult-card p.consult-intro{color:#c9c1a8;font-size:.85rem;text-align:center;margin-bottom:28px;position:relative}
-.consult-buttons{display:flex;flex-direction:column;gap:12px;position:relative}
-.consult-btn{display:flex;align-items:center;justify-content:center;gap:10px;padding:14px 20px;font-weight:700;font-family:inherit;font-size:.95rem;cursor:pointer;border:1px solid var(--gold);text-decoration:none;transition:transform .25s, background .25s, color .25s}
-.consult-btn.form{background:var(--gold);color:var(--navy-deep);border-color:var(--gold-light)}
-.consult-btn.form:hover{background:var(--gold-light);transform:translateY(-2px)}
-.consult-btn.rubika{background:transparent;color:#e8dfc4}
-.consult-btn.rubika:hover{background:#e91e63;border-color:#e91e63;color:#fff;transform:translateY(-2px)}
-.consult-btn.eitaa{background:transparent;color:#e8dfc4}
-.consult-btn.eitaa:hover{background:#ff9900;border-color:#ff9900;color:#fff;transform:translateY(-2px)}
+.consult-card p.consult-intro{color:#c9c1a8;font-size:.85rem;text-align:center;margin-bottom:24px;position:relative}
+.consult-main-btn{position:relative;width:100%;display:flex;align-items:center;justify-content:center;gap:10px;padding:16px 20px;background:var(--gold);color:var(--navy-deep);font-weight:700;font-family:inherit;font-size:1rem;cursor:pointer;border:1px solid var(--gold-light);transition:transform .25s, background .25s}
+.consult-main-btn:hover{background:var(--gold-light);transform:translateY(-2px)}
 .consult-note{margin-top:16px;font-size:.78rem;color:#8a8374;text-align:center;position:relative}
 
 .features{padding:60px 0}
@@ -166,14 +159,30 @@ footer{background:var(--navy-deep);color:#c9c1a8;padding:50px 24px 0;font-size:.
 .foot-col a:hover{color:var(--gold-light)}
 .foot-bottom{border-top:1px solid #2c3547;text-align:center;padding:22px 0;font-size:.85rem;color:#8a8374}
 
-.float-buttons{position:fixed;bottom:30px;left:30px;display:flex;flex-direction:column;gap:12px;z-index:900}
-.float-btn{width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:26px;text-decoration:none;color:#fff;box-shadow:0 8px 20px rgba(0,0,0,.25);transition:transform .3s;position:relative}
-.float-btn::after{content:attr(data-label);position:absolute;right:calc(100% + 12px);top:50%;transform:translateY(-50%);background:var(--navy);color:var(--gold-light);padding:6px 12px;font-size:.8rem;font-family:Vazirmatn,Tahoma,serif;white-space:nowrap;border-radius:6px;opacity:0;pointer-events:none;transition:opacity .3s}
-.float-btn:hover::after{opacity:1}
-.float-btn:hover{transform:scale(1.1)}
-.float-btn.rubika{background:linear-gradient(135deg, #e91e63, #c2185b)}
-.float-btn.eitaa{background:linear-gradient(135deg, #ff9900, #e67e00)}
-@media(max-width:600px){.float-buttons{bottom:20px;left:20px;gap:10px}.float-btn{width:48px;height:48px;font-size:22px}}
+.contact-fab{position:fixed;bottom:30px;left:30px;z-index:950}
+.contact-fab-main{width:62px;height:62px;border-radius:50%;background:linear-gradient(135deg, var(--navy) 0%, var(--navy-deep) 100%);border:2px solid var(--gold);color:var(--gold-light);font-size:26px;cursor:pointer;box-shadow:0 10px 25px rgba(0,0,0,.3);transition:transform .35s, background .3s;display:flex;align-items:center;justify-content:center;position:relative}
+.contact-fab-main::before{content:"";position:absolute;inset:-6px;border-radius:50%;border:2px solid var(--gold);opacity:0;animation:fabPulse 2.5s infinite}
+@keyframes fabPulse{0%{opacity:.7;transform:scale(1)}100%{opacity:0;transform:scale(1.4)}}
+.contact-fab-main:hover{transform:scale(1.08)}
+.contact-fab-main.open{transform:rotate(45deg);background:var(--gold);color:var(--navy-deep)}
+.contact-fab-main.open::before{display:none}
+.contact-fab-options{position:absolute;bottom:76px;left:0;display:flex;flex-direction:column;gap:10px;opacity:0;visibility:hidden;transform:translateY(15px);transition:opacity .3s, transform .3s, visibility .3s;pointer-events:none}
+.contact-fab-options.open{opacity:1;visibility:visible;transform:translateY(0);pointer-events:auto}
+.contact-option{display:flex;align-items:center;gap:12px;padding:10px 18px 10px 12px;background:var(--navy);color:#f5f1e8;border-radius:40px;text-decoration:none;font-size:.9rem;font-weight:600;box-shadow:0 8px 20px rgba(0,0,0,.25);white-space:nowrap;transition:transform .25s, background .25s;border:1px solid var(--gold);min-width:210px;animation:optionSlide .35s ease backwards}
+.contact-fab-options.open .contact-option:nth-child(1){animation-delay:.05s}
+.contact-fab-options.open .contact-option:nth-child(2){animation-delay:.12s}
+.contact-fab-options.open .contact-option:nth-child(3){animation-delay:.19s}
+@keyframes optionSlide{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.contact-option:hover{transform:translateX(-5px);background:var(--navy-deep)}
+.contact-option .opt-icon{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;color:#fff}
+.contact-option .opt-icon.rubika{background:linear-gradient(135deg,#e91e63,#c2185b)}
+.contact-option .opt-icon.eitaa{background:linear-gradient(135deg,#ff9900,#e67e00)}
+.contact-option .opt-icon.phone{background:linear-gradient(135deg,#22c55e,#16a34a)}
+.contact-option .opt-text{display:flex;flex-direction:column;line-height:1.35;text-align:right}
+.contact-option .opt-name{font-size:.95rem;color:var(--gold-light);font-weight:700}
+.contact-option .opt-detail{font-size:.75rem;color:#a89e8a;direction:ltr;text-align:right;font-family:Tahoma,sans-serif}
+.contact-option .opt-arrow{margin-right:auto;color:var(--gold-light);font-size:14px;opacity:.6}
+@media(max-width:600px){.contact-fab{bottom:20px;left:20px}.contact-fab-main{width:54px;height:54px;font-size:22px}.contact-option{min-width:190px;padding:9px 14px 9px 10px;font-size:.85rem}.contact-option .opt-icon{width:32px;height:32px;font-size:15px}.contact-option .opt-name{font-size:.85rem}.contact-option .opt-detail{font-size:.7rem}}
 
 #toTop{position:fixed;bottom:30px;right:30px;width:46px;height:46px;background:var(--navy);color:var(--gold-light);border:1px solid var(--gold);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;opacity:0;visibility:hidden;transform:translateY(20px);transition:opacity .35s,transform .35s,visibility .35s;z-index:900}
 #toTop.show{opacity:1;visibility:visible;transform:translateY(0)}
@@ -268,14 +277,13 @@ footer{background:var(--navy-deep);color:#c9c1a8;padding:50px 24px 0;font-size:.
       </ul>
     </div>
     <div class="consult-card reveal reveal-delay-2">
-      <h3>از کدوم راه راحت‌تری؟</h3>
-      <p class="consult-intro">هر روشی که برات راحت‌تره انتخاب کن</p>
-      <div class="consult-buttons">
-        <a href="/consultation" class="consult-btn form">📝 درخواست تماس رایگان</a>
-        <a href="https://rubika.ir/RUBIKA_USERNAME" class="consult-btn rubika" target="_blank">💬 چت در روبیکا</a>
-        <a href="https://eitaa.com/EITAA_USERNAME" class="consult-btn eitaa" target="_blank">💬 چت در ایتا</a>
-      </div>
-      <p class="consult-note">معمولاً در کمتر از ۲۴ ساعت پاسخ می‌دیم</p>
+      <h3>آماده‌ی مشاوره‌ای؟</h3>
+      <p class="consult-intro">از هر راهی که برات راحت‌تره با ما در ارتباط باش</p>
+      <button type="button" class="consult-main-btn" onclick="openContactFab()">
+        <span>📞 💬</span>
+        <span>راه‌های ارتباطی</span>
+      </button>
+      <p class="consult-note">روی دکمه بزن تا گزینه‌ها باز شن</p>
     </div>
   </div>
 </section>
@@ -371,7 +379,7 @@ footer{background:var(--navy-deep);color:#c9c1a8;padding:50px 24px 0;font-size:.
     </div>
     <div class="foot-col">
       <h3>راه‌های ارتباطی</h3>
-      <p>📞 <a href="tel:+989931783620">۰۹۹۳۱۷۸۳۶۲۰</a></p>
+      <p>📞 <a href="tel:+989931783620">۰۹۹۳۱۷۸۳۶۲</a></p>
       <p>✉️ <a href="mailto:cady1max1@gmail.com">cady1max1@gmail.com</a></p>
       <p>🕐 شنبه تا پنجشنبه، ۹ صبح تا ۶ عصر</p>
     </div>
@@ -379,9 +387,34 @@ footer{background:var(--navy-deep);color:#c9c1a8;padding:50px 24px 0;font-size:.
   <div class="foot-bottom">© ۱۴۰۴ مرکز مطالعه و پانسیون پسرانه — تمامی حقوق محفوظ است.</div>
 </footer>
 
-<div class="float-buttons">
-  <a href="https://rubika.ir/RUBIKA_USERNAME" class="float-btn rubika" data-label="چت در روبیکا" target="_blank">💬</a>
-  <a href="https://eitaa.com/EITAA_USERNAME" class="float-btn eitaa" data-label="چت در ایتا" target="_blank">💬</a>
+<div class="contact-fab" id="contactFab">
+  <div class="contact-fab-options" id="contactFabOptions">
+    <a href="tel:+989931783620" class="contact-option">
+      <div class="opt-icon phone">📞</div>
+      <div class="opt-text">
+        <span class="opt-name">تماس تلفنی</span>
+        <span class="opt-detail">09931783620</span>
+      </div>
+      <span class="opt-arrow">←</span>
+    </a>
+    <a href="https://rubika.ir/Jamshidfakhrii" class="contact-option" target="_blank" rel="noopener">
+      <div class="opt-icon rubika">💬</div>
+      <div class="opt-text">
+        <span class="opt-name">روبیکا</span>
+        <span class="opt-detail">@Jamshidfakhrii</span>
+      </div>
+      <span class="opt-arrow">←</span>
+    </a>
+    <a href="https://eitaa.com/Jamshidfakhrii" class="contact-option" target="_blank" rel="noopener">
+      <div class="opt-icon eitaa">💬</div>
+      <div class="opt-text">
+        <span class="opt-name">ایتا</span>
+        <span class="opt-detail">@Jamshidfakhrii</span>
+      </div>
+      <span class="opt-arrow">←</span>
+    </a>
+  </div>
+  <button class="contact-fab-main" id="contactFabMain" onclick="toggleContactFab()" title="ارتباط با ما">💬</button>
 </div>
 
 <button id="toTop">▲</button>
@@ -425,6 +458,29 @@ if('IntersectionObserver' in window){
     },{threshold:0.5});
     document.querySelectorAll('.num[data-target]').forEach(el=>cObs.observe(el));
 }
+
+function toggleContactFab(){
+    const main = document.getElementById('contactFabMain');
+    const opts = document.getElementById('contactFabOptions');
+    main.classList.toggle('open');
+    opts.classList.toggle('open');
+}
+function openContactFab(){
+    const main = document.getElementById('contactFabMain');
+    const opts = document.getElementById('contactFabOptions');
+    if (!opts.classList.contains('open')) {
+        main.classList.add('open');
+        opts.classList.add('open');
+    }
+    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+}
+document.addEventListener('click', function(e){
+    const fab = document.getElementById('contactFab');
+    if (fab && !fab.contains(e.target)) {
+        document.getElementById('contactFabMain').classList.remove('open');
+        document.getElementById('contactFabOptions').classList.remove('open');
+    }
+});
 
 const progressBar=document.getElementById('progress-bar');
 function updateProgress(){
