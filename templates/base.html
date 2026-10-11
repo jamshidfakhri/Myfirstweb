@@ -3,7 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>{% block title %}سایت من{% endblock %}</title>
+<meta name="description" content="مرکز مطالعه و پانسیون پسرانه؛ فضایی آرام، منظم و مجهز برای پیشرفت تحصیلی دانش‌آموزان">
+<meta name="theme-color" content="#1a2b4a">
+<title>{% block title %}مرکز مطالعه و پانسیون پسرانه{% endblock %}</title>
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;600;800&display=swap" rel="stylesheet">
 <style>
 :root{--ink:#1c2740;--paper:#faf8f3;--card:#fff;--brass:#b8801f;--brass-soft:#f3e6c9;--mute:#5d6578;--line:#e4dfd2;--r:10px}
@@ -11,15 +13,18 @@
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:Vazirmatn,Tahoma,sans-serif;background:var(--paper);color:var(--ink);line-height:1.9}
 a{color:inherit;text-decoration:none}
+img{max-width:100%;height:auto}
 .wrap{max-width:900px;margin:0 auto;padding:0 20px}
 header{border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--paper);z-index:5}
-header .wrap{display:flex;justify-content:space-between;align-items:center;height:60px}
+header .wrap{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:4px 16px;min-height:60px;padding-top:6px;padding-bottom:6px}
 .logo{font-weight:800}
-nav{display:flex;gap:18px;font-size:.95rem}
+nav{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:.95rem}
 nav a{color:var(--mute)}
 nav a:hover{color:var(--ink)}
+@media(max-width:600px){nav{gap:4px 12px;font-size:.85rem}}
 main{padding:30px 0;min-height:70vh}
 .box{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:30px}
+@media(max-width:600px){.box{padding:20px 16px}}
 .btn{display:inline-block;background:var(--brass);color:#fff;padding:10px 24px;border-radius:var(--r);border:0;cursor:pointer;font:inherit;font-weight:600}
 input,textarea{width:100%;padding:10px 14px;border:1px solid var(--line);border-radius:8px;font:inherit;background:var(--card);color:var(--ink);margin-bottom:12px}
 textarea{min-height:150px;resize:vertical}
@@ -28,16 +33,29 @@ h1{margin-bottom:15px}
 .post{padding:18px 0;border-bottom:1px solid var(--line)}
 .post:last-child{border-bottom:0}
 .muted{color:var(--mute);font-size:.9rem}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px;margin-top:22px}
+.card{display:block;border:1px solid var(--line);background:var(--card);border-radius:var(--r);padding:20px 18px}
+a.card:hover{border-color:var(--brass)}
+.card h3{color:var(--brass);margin:6px 0 4px;font-size:1.05rem}
+.card-ico{font-size:32px;display:block}
+.avatar{display:block;width:96px;height:96px;border-radius:50%;object-fit:cover;margin:0 auto 10px;border:2px solid var(--line)}
+.gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-top:22px}
+.gallery img{display:block;width:100%;height:150px;object-fit:cover;border-radius:8px;border:1px solid var(--line)}
 footer{text-align:center;padding:24px 20px;color:var(--mute);font-size:.85rem;border-top:1px solid var(--line);margin-top:40px}
+footer a{margin:0 4px}
 </style>
 </head>
 <body>
 <header>
   <div class="wrap">
-    <a class="logo" href="/">سایت من</a>
+    <a class="logo" href="/">📖 مرکز مطالعه</a>
     <nav>
       <a href="/">خانه</a>
+      <a href="/facilities">امکانات</a>
+      <a href="/gallery">گالری</a>
+      <a href="/team">کارکنان</a>
       <a href="/blog">وبلاگ</a>
+      <a href="/contact">تماس</a>
     </nav>
   </div>
 </header>
@@ -47,7 +65,7 @@ footer{text-align:center;padding:24px 20px;color:var(--mute);font-size:.85rem;bo
   </div>
 </main>
 <footer>
-  ساخته شده با پایتون | <a href="/blog">وبلاگ</a> | <a href="/admin/login">ورود مدیریت</a>
+  <a href="/channels">کانال‌ها</a> | <a href="/faq">سوالات متداول</a> | <a href="/location">آدرس</a> | <a href="/register">ثبت‌نام</a> | <a href="/admin/login">ورود مدیریت</a>
 </footer>
 </body>
 </html>
