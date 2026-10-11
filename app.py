@@ -3,11 +3,14 @@ import sqlite3
 import smtplib
 import urllib.request
 import urllib.parse
+from html import escape as esc
 from email.mime.text import MIMEText
 from flask import Flask, request, redirect, session, jsonify, render_template
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "secret123")
+# عکس‌ها و فایل‌های static یک هفته در مرورگر کاربر ذخیره می‌شوند (سایت سریع‌تر باز می‌شود)
+app.config["SEND_FILE_MAX_AGE_DEFAULT"] = 60 * 60 * 24 * 7
 
 ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "admin123")
 BOT_TOKEN = os.environ.get("BOT_TOKEN", "")
@@ -15,7 +18,15 @@ ADMIN_ID = os.environ.get("ADMIN_ID", "")
 GMAIL_USER = os.environ.get("GMAIL_USER", "")
 GMAIL_APP_PASSWORD = os.environ.get("GMAIL_APP_PASSWORD", "")
 NOTIFY_EMAIL = os.environ.get("NOTIFY_EMAIL", "")
+
+# --- دیتابیس ---
+# اگر DATABASE_URL در تنظیمات Render گذاشته شده باشد، از دیتابیس واقعی (PostgreSQL) استفاده می‌شود.
+# اگر نباشد، مثل قبل از فایل SQLite استفاده می‌شود (برای تست روی کامپیوتر خودت).
+DATABASE_URL = os.environ.get("DATABASE_URL", "")
+USE_PG = DATABASE_URL.startswith("postgres")
 DB_NAME = "site_data.db"
+if USE_PG:
+    import psycopg2
 
 CENTER_ADDRESS = "کرمان، خیابان خواجو"
 CENTER_LAT = "30.2802837"
@@ -25,15 +36,62 @@ RUBIKA_USERNAME = "Jamshidfakhrii"
 EITAA_USERNAME = "Jamshidfakhrii"
 CENTER_PHONE = "09931783620"
 
+# --- کانال‌ها ---
+# اگر کانال روبیکا یا ایتا اسم دیگری دارد، همین‌جا عوضش کن. فعلاً همان یوزرنیم بالا گذاشته شده.
+# کانال تلگرام: فقط یوزرنیم را بنویس (بدون @). اگر خالی باشد، نمایش داده نمی‌شود.
+RUBIKA_CHANNEL = RUBIKA_USERNAME
+EITAA_CHANNEL = EITAA_USERNAME
+TELEGRAM_CHANNEL = os.environ.get("TELEGRAM_CHANNEL", "")
+
+# --- کارکنان ---
+# برای اضافه کردن هر نفر، یک بلوک مثل نمونه‌ی زیر بنویس (علامت # را بردار).
+# عکس (اختیاری) را در پوشه‌ی static/staff بگذار و فقط اسم فایل را بنویس.
+STAFF = [
+    # {"name": "نام و نام خانوادگی", "role": "سمت", "bio": "توضیح کوتاه", "photo": "ali.jpg"},
+]
+
+# --- امکانات ---
+# فقط چیزهایی که در سوالات متداول و برنامه‌ی روزانه‌ی سایت آمده. هر چه خواستی اضافه یا ویرایش کن.
+FACILITIES = [
+    ("🍽️", "تغذیه", "سه وعده‌ی غذایی به همراه میان‌وعده ارائه می‌شود و در شهریه لحاظ است."),
+    ("📶", "اینترنت پرسرعت", "اینترنت پرسرعت در مرکز در دسترس دانش‌آموزان است."),
+    ("📚", "سالن‌های مطالعه", "سالن‌های مطالعه‌ی مجهز برای مطالعه‌ی آرام و با تمرکز."),
+    ("🛏️", "اتاق‌ها", "اتاق‌های دو نفره و چهار نفره."),
+    ("🩺", "مراقبت", "در صورت بیماری، بلافاصله به والدین اطلاع داده می‌شود و دانش‌آموز به پزشک ارجاع داده می‌شود."),
+    ("🕰️", "برنامه‌ی روزانه‌ی منظم", "برنامه‌ی مشخص از بیداری و صبحانه تا مطالعه‌ی شبانه."),
+    ("👨‍👩‍👦", "بازدید والدین", "والدین با هماهنگی قبلی می‌توانند از مرکز بازدید کنند."),
+]
+
+GALLERY_DIR = os.path.join(app.root_path, "static", "gallery")
+IMAGE_EXTS = (".jpg", ".jpeg", ".png", ".webp")
+
+
+def run_sql(sql, params=(), fetch=None):
+    # fetch: None (فقط اجرا)، "one" (یک ردیف)، "all" (همه‌ی ردیف‌ها)
+    if USE_PG:
+        sql = sql.replace("?", "%s")
+        conn = psycopg2.connect(DATABASE_URL)
+    else:
+        conn = sqlite3.connect(DB_NAME)
+    try:
+        c = conn.cursor()
+        c.execute(sql, params)
+        result = None
+        if fetch == "one":
+            result = c.fetchone()
+        elif fetch == "all":
+            result = c.fetchall()
+        conn.commit()
+        return result
+    finally:
+        conn.close()
+
 
 def init_db():
-    conn = sqlite3.connect(DB_NAME)
-    c = conn.cursor()
-    c.execute("CREATE TABLE IF NOT EXISTS posts (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, content TEXT, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)")
-    c.execute("CREATE TABLE IF NOT EXISTS registrations (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, age TEXT, grade TEXT, phone TEXT, notes TEXT, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)")
-    c.execute("CREATE TABLE IF NOT EXISTS consultations (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, phone TEXT, best_time TEXT, notes TEXT, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)")
-    conn.commit()
-    conn.close()
+    pk = "SERIAL PRIMARY KEY" if USE_PG else "INTEGER PRIMARY KEY AUTOINCREMENT"
+    run_sql("CREATE TABLE IF NOT EXISTS posts (id " + pk + ", title TEXT, content TEXT, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)")
+    run_sql("CREATE TABLE IF NOT EXISTS registrations (id " + pk + ", name TEXT, age TEXT, grade TEXT, phone TEXT, notes TEXT, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)")
+    run_sql("CREATE TABLE IF NOT EXISTS consultations (id " + pk + ", name TEXT, phone TEXT, best_time TEXT, notes TEXT, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)")
 
 
 def send_email(subject, body):
@@ -69,95 +127,47 @@ def send_to_telegram(text):
 
 
 def get_all_posts():
-    conn = sqlite3.connect(DB_NAME)
-    c = conn.cursor()
-    c.execute("SELECT id, title, content FROM posts ORDER BY id DESC")
-    rows = c.fetchall()
-    conn.close()
-    return rows
+    return run_sql("SELECT id, title, content FROM posts ORDER BY id DESC", fetch="all")
 
 
 def get_post(pid):
-    conn = sqlite3.connect(DB_NAME)
-    c = conn.cursor()
-    c.execute("SELECT id, title, content FROM posts WHERE id = ?", (pid,))
-    row = c.fetchone()
-    conn.close()
-    return row
+    return run_sql("SELECT id, title, content FROM posts WHERE id = ?", (pid,), fetch="one")
 
 
 def create_post(t, ct):
-    conn = sqlite3.connect(DB_NAME)
-    c = conn.cursor()
-    c.execute("INSERT INTO posts (title, content) VALUES (?, ?)", (t, ct))
-    conn.commit()
-    conn.close()
+    run_sql("INSERT INTO posts (title, content) VALUES (?, ?)", (t, ct))
 
 
 def update_post(pid, t, ct):
-    conn = sqlite3.connect(DB_NAME)
-    c = conn.cursor()
-    c.execute("UPDATE posts SET title=?, content=? WHERE id=?", (t, ct, pid))
-    conn.commit()
-    conn.close()
+    run_sql("UPDATE posts SET title=?, content=? WHERE id=?", (t, ct, pid))
 
 
 def delete_post(pid):
-    conn = sqlite3.connect(DB_NAME)
-    c = conn.cursor()
-    c.execute("DELETE FROM posts WHERE id=?", (pid,))
-    conn.commit()
-    conn.close()
+    run_sql("DELETE FROM posts WHERE id=?", (pid,))
 
 
 def save_registration(name, age, grade, phone, notes):
-    conn = sqlite3.connect(DB_NAME)
-    c = conn.cursor()
-    c.execute("INSERT INTO registrations (name, age, grade, phone, notes) VALUES (?, ?, ?, ?, ?)", (name, age, grade, phone, notes))
-    conn.commit()
-    conn.close()
+    run_sql("INSERT INTO registrations (name, age, grade, phone, notes) VALUES (?, ?, ?, ?, ?)", (name, age, grade, phone, notes))
 
 
 def get_all_registrations():
-    conn = sqlite3.connect(DB_NAME)
-    c = conn.cursor()
-    c.execute("SELECT id, name, age, grade, phone, notes, created_at FROM registrations ORDER BY id DESC")
-    rows = c.fetchall()
-    conn.close()
-    return rows
+    return run_sql("SELECT id, name, age, grade, phone, notes, created_at FROM registrations ORDER BY id DESC", fetch="all")
 
 
 def delete_registration(rid):
-    conn = sqlite3.connect(DB_NAME)
-    c = conn.cursor()
-    c.execute("DELETE FROM registrations WHERE id=?", (rid,))
-    conn.commit()
-    conn.close()
+    run_sql("DELETE FROM registrations WHERE id=?", (rid,))
 
 
 def save_consultation(name, phone, best_time, notes):
-    conn = sqlite3.connect(DB_NAME)
-    c = conn.cursor()
-    c.execute("INSERT INTO consultations (name, phone, best_time, notes) VALUES (?, ?, ?, ?)", (name, phone, best_time, notes))
-    conn.commit()
-    conn.close()
+    run_sql("INSERT INTO consultations (name, phone, best_time, notes) VALUES (?, ?, ?, ?)", (name, phone, best_time, notes))
 
 
 def get_all_consultations():
-    conn = sqlite3.connect(DB_NAME)
-    c = conn.cursor()
-    c.execute("SELECT id, name, phone, best_time, notes, created_at FROM consultations ORDER BY id DESC")
-    rows = c.fetchall()
-    conn.close()
-    return rows
+    return run_sql("SELECT id, name, phone, best_time, notes, created_at FROM consultations ORDER BY id DESC", fetch="all")
 
 
 def delete_consultation(cid):
-    conn = sqlite3.connect(DB_NAME)
-    c = conn.cursor()
-    c.execute("DELETE FROM consultations WHERE id=?", (cid,))
-    conn.commit()
-    conn.close()
+    run_sql("DELETE FROM consultations WHERE id=?", (cid,))
 
 
 def logged_in():
@@ -222,6 +232,92 @@ def build_location_html():
     return html
 
 
+def build_facilities_html():
+    html = "<h1>امکانات مرکز</h1>"
+    html += "<p class='muted'>هر آنچه برای یک محیط آرام و منظم مطالعه لازم است.</p>"
+    html += "<div class='cards'>"
+    for icon, title, text in FACILITIES:
+        html += "<div class='card'>"
+        html += "<span class='card-ico'>" + icon + "</span>"
+        html += "<h3>" + esc(title) + "</h3>"
+        html += "<p class='muted'>" + esc(text) + "</p>"
+        html += "</div>"
+    html += "</div>"
+    html += "<div style='margin-top:30px;text-align:center;'>"
+    html += "<a href='/register' class='btn'>ثبت‌نام</a> "
+    html += "<a href='/consultation' class='btn ghost'>مشاوره‌ی رایگان</a>"
+    html += "</div>"
+    return html
+
+
+def build_team_html():
+    html = "<h1>معرفی کارکنان</h1>"
+    html += "<p class='muted'>با تیمی که در کنار دانش‌آموزان شماست آشنا شوید.</p>"
+    if not STAFF:
+        html += "<p class='muted' style='margin-top:24px;'>این بخش به‌زودی تکمیل می‌شود.</p>"
+        return html
+    html += "<div class='cards'>"
+    for s in STAFF:
+        html += "<div class='card' style='text-align:center;'>"
+        photo = s.get("photo", "")
+        if photo:
+            html += "<img class='avatar' loading='lazy' alt='" + esc(s.get("name", "")) + "' src='/static/staff/" + urllib.parse.quote(photo) + "'>"
+        html += "<h3>" + esc(s.get("name", "")) + "</h3>"
+        if s.get("role"):
+            html += "<p style='color:var(--brass);font-weight:600;'>" + esc(s["role"]) + "</p>"
+        if s.get("bio"):
+            html += "<p class='muted'>" + esc(s["bio"]) + "</p>"
+        html += "</div>"
+    html += "</div>"
+    return html
+
+
+def list_gallery_images():
+    try:
+        names = os.listdir(GALLERY_DIR)
+    except OSError:
+        return []
+    names = [n for n in names if n.lower().endswith(IMAGE_EXTS)]
+    names.sort()
+    return names
+
+
+def build_gallery_html():
+    html = "<h1>گالری تصاویر</h1>"
+    html += "<p class='muted'>نگاهی به فضای مرکز مطالعه و پانسیون.</p>"
+    images = list_gallery_images()
+    if not images:
+        html += "<p class='muted' style='margin-top:24px;'>تصاویر به‌زودی اضافه می‌شوند.</p>"
+        return html
+    html += "<div class='gallery'>"
+    for n in images:
+        src = "/static/gallery/" + urllib.parse.quote(n)
+        html += "<a href='" + src + "' target='_blank'><img loading='lazy' alt='تصویری از مرکز' src='" + src + "'></a>"
+    html += "</div>"
+    return html
+
+
+def build_channels_html():
+    items = []
+    if RUBIKA_CHANNEL:
+        items.append(("💬", "روبیکا", "https://rubika.ir/" + RUBIKA_CHANNEL, "@" + RUBIKA_CHANNEL))
+    if EITAA_CHANNEL:
+        items.append(("💬", "ایتا", "https://eitaa.com/" + EITAA_CHANNEL, "@" + EITAA_CHANNEL))
+    if TELEGRAM_CHANNEL:
+        items.append(("✈️", "تلگرام", "https://t.me/" + TELEGRAM_CHANNEL, "@" + TELEGRAM_CHANNEL))
+    html = "<h1>کانال‌های ما</h1>"
+    html += "<p class='muted'>برای دیدن اخبار و اطلاعیه‌ها، ما را در پیام‌رسان‌ها دنبال کنید.</p>"
+    html += "<div class='cards'>"
+    for icon, name, url, handle in items:
+        html += "<a class='card' href='" + esc(url) + "' target='_blank' style='text-align:center;'>"
+        html += "<span class='card-ico'>" + icon + "</span>"
+        html += "<h3>" + name + "</h3>"
+        html += "<p class='muted' style='direction:ltr;'>" + esc(handle) + "</p>"
+        html += "</a>"
+    html += "</div>"
+    return html
+
+
 @app.route("/ping")
 def ping():
     return jsonify({"ok": True})
@@ -235,6 +331,26 @@ def home():
 @app.route("/faq")
 def faq():
     return render_page("سوالات متداول", build_faq_html())
+
+
+@app.route("/facilities")
+def facilities():
+    return render_page("امکانات", build_facilities_html())
+
+
+@app.route("/team")
+def team():
+    return render_page("معرفی کارکنان", build_team_html())
+
+
+@app.route("/gallery")
+def gallery():
+    return render_page("گالری تصاویر", build_gallery_html())
+
+
+@app.route("/channels")
+def channels():
+    return render_page("کانال‌ها", build_channels_html())
 
 
 @app.route("/location")
@@ -253,6 +369,8 @@ def contact():
     html += "<p>🕐 شنبه تا پنجشنبه، ۹ صبح تا ۶ عصر</p>"
     html += "<p>💬 روبیکا: <a href='https://rubika.ir/" + RUBIKA_USERNAME + "'>@" + RUBIKA_USERNAME + "</a></p>"
     html += "<p>💬 ایتا: <a href='https://eitaa.com/" + EITAA_USERNAME + "'>@" + EITAA_USERNAME + "</a></p>"
+    if TELEGRAM_CHANNEL:
+        html += "<p>✈️ تلگرام: <a href='https://t.me/" + TELEGRAM_CHANNEL + "'>@" + TELEGRAM_CHANNEL + "</a></p>"
     html += "</div>"
     html += "<div style='margin-top:30px;text-align:center;'>"
     html += "<a href='/consultation' class='btn'>مشاوره‌ی رایگان</a> "
@@ -279,7 +397,7 @@ def consultation():
             msg += "\nتوضیحات: " + notes
         send_to_telegram(msg)
         send_email("درخواست مشاوره: " + name, msg)
-        return render_page("ثبت شد", "<h1>درخواستت ثبت شد ✅</h1><p>ممنون " + name + " عزیز! در اولین فرصت با شما تماس می‌گیریم.</p><p><a href='/'>برگرد به خانه</a></p>")
+        return render_page("ثبت شد", "<h1>درخواستت ثبت شد ✅</h1><p>ممنون " + esc(name) + " عزیز! در اولین فرصت با شما تماس می‌گیریم.</p><p><a href='/'>برگرد به خانه</a></p>")
     form = "<h1>مشاوره‌ی رایگان</h1>"
     form += "<p class='muted'>اطلاعاتت رو وارد کن، کارشناسان ما در سریع‌ترین زمان با شما تماس می‌گیرن.</p>"
     form += "<form method='POST' style='margin-top:20px;'>"
@@ -319,7 +437,7 @@ def register():
             msg += "\nتوضیحات: " + notes
         send_to_telegram(msg)
         send_email("ثبت‌نام جدید: " + name, msg)
-        return render_page("ثبت‌نام موفق", "<h1>ثبت‌نام انجام شد ✅</h1><p>ممنون " + name + " عزیز!</p><p><a href='/'>برگرد</a></p>")
+        return render_page("ثبت‌نام موفق", "<h1>ثبت‌نام انجام شد ✅</h1><p>ممنون " + esc(name) + " عزیز!</p><p><a href='/'>برگرد</a></p>")
     form = "<h1>فرم ثبت‌نام</h1>"
     form += "<form method='POST' style='margin-top:20px;'>"
     form += "<label>نام دانش‌آموز *</label><input name='name' required>"
@@ -339,7 +457,7 @@ def blog():
     if not posts:
         html += "<p class='muted'>هنوز پستی نیست.</p>"
     for p in posts:
-        html += "<div class='post'><h2><a href='/blog/" + str(p[0]) + "'>" + p[1] + "</a></h2><p class='muted'>" + p[2][:150] + "...</p></div>"
+        html += "<div class='post'><h2><a href='/blog/" + str(p[0]) + "'>" + esc(p[1]) + "</a></h2><p class='muted'>" + p[2][:150] + "...</p></div>"
     return render_page("وبلاگ", html)
 
 
@@ -348,7 +466,7 @@ def blog_post(pid):
     p = get_post(pid)
     if not p:
         return render_page("پیدا نشد", "<h1>پیدا نشد</h1><p><a href='/blog'>برگرد</a></p>"), 404
-    html = "<h1>" + p[1] + "</h1><p class='muted'><a href='/blog'>← برگرد</a></p><hr><p>" + p[2] + "</p>"
+    html = "<h1>" + esc(p[1]) + "</h1><p class='muted'><a href='/blog'>← برگرد</a></p><hr><p>" + p[2] + "</p>"
     return render_page(p[1], html)
 
 
@@ -376,7 +494,7 @@ def admin_posts():
     posts = get_all_posts()
     html = "<h1>مدیریت</h1><p><a href='/admin/posts/new'>➕ پست جدید</a> | <a href='/admin/registrations'>📋 ثبت‌نام‌ها</a> | <a href='/admin/consultations'>💬 مشاوره‌ها</a> | <a href='/admin/logout'>خروج</a></p><hr>"
     for p in posts:
-        html += "<div class='post'><b>" + p[1] + "</b> | <a href='/admin/posts/" + str(p[0]) + "/edit'>ویرایش</a></div>"
+        html += "<div class='post'><b>" + esc(p[1]) + "</b> | <a href='/admin/posts/" + str(p[0]) + "/edit'>ویرایش</a></div>"
     return render_page("مدیریت", html)
 
 
@@ -387,11 +505,11 @@ def admin_registrations():
     regs = get_all_registrations()
     html = "<h1>ثبت‌نام‌ها</h1><p><a href='/admin/posts'>← برگرد</a></p><hr>"
     for r in regs:
-        html += "<div class='post'><b>" + r[1] + "</b> (سن: " + r[2] + "، پایه: " + r[3] + ")<br>"
-        html += "<span class='muted'>📞 " + r[4] + "</span><br>"
+        html += "<div class='post'><b>" + esc(str(r[1])) + "</b> (سن: " + esc(str(r[2])) + "، پایه: " + esc(str(r[3])) + ")<br>"
+        html += "<span class='muted'>📞 " + esc(str(r[4])) + "</span><br>"
         if r[5]:
-            html += "<span class='muted'>" + r[5] + "</span><br>"
-        html += "<span class='muted'>" + str(r[6]) + "</span>"
+            html += "<span class='muted'>" + esc(str(r[5])) + "</span><br>"
+        html += "<span class='muted'>" + esc(str(r[6])) + "</span>"
         html += "<form method='POST' action='/admin/registrations/" + str(r[0]) + "/delete' style='margin-top:8px;'><button type='submit' class='btn' style='padding:5px 15px;font-size:.85rem;'>حذف</button></form>"
         html += "</div>"
     return render_page("ثبت‌نام‌ها", html)
@@ -406,12 +524,12 @@ def admin_consultations():
     if not items:
         html += "<p class='muted'>هنوز درخواستی نیومده.</p>"
     for r in items:
-        html += "<div class='post'><b>" + r[1] + "</b><br>"
-        html += "<span class='muted'>📞 " + r[2] + "</span><br>"
-        html += "<span class='muted'>🕐 " + (r[3] if r[3] else "—") + "</span><br>"
+        html += "<div class='post'><b>" + esc(str(r[1])) + "</b><br>"
+        html += "<span class='muted'>📞 " + esc(str(r[2])) + "</span><br>"
+        html += "<span class='muted'>🕐 " + (esc(str(r[3])) if r[3] else "—") + "</span><br>"
         if r[4]:
-            html += "<span class='muted'>💬 " + r[4] + "</span><br>"
-        html += "<span class='muted'>" + str(r[5]) + "</span>"
+            html += "<span class='muted'>💬 " + esc(str(r[4])) + "</span><br>"
+        html += "<span class='muted'>" + esc(str(r[5])) + "</span>"
         html += "<form method='POST' action='/admin/consultations/" + str(r[0]) + "/delete' style='margin-top:8px;'><button type='submit' class='btn' style='padding:5px 15px;font-size:.85rem;'>حذف</button></form>"
         html += "</div>"
     return render_page("مشاوره‌ها", html)
@@ -460,7 +578,7 @@ def admin_edit(pid):
         if t and ct:
             update_post(pid, t, ct)
             return redirect("/admin/posts")
-    html = "<h1>ویرایش</h1><form method='POST'><input name='title' value='" + p[1] + "' required><textarea name='content' required>" + p[2] + "</textarea><button type='submit' class='btn'>ذخیره</button></form>"
+    html = "<h1>ویرایش</h1><form method='POST'><input name='title' value='" + esc(p[1]) + "' required><textarea name='content' required>" + esc(p[2]) + "</textarea><button type='submit' class='btn'>ذخیره</button></form>"
     return render_page("ویرایش", html)
 
 
